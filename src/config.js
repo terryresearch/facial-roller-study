@@ -25,6 +25,15 @@ const CONFIG = {
    --------------------------------------------------------------------- */
 const STIMULUS = {
   kicker: "Skincare",
+
+  /* Product photo, shown identically in all four conditions.
+     To use a different photo, drop it in as img/roller.jpg (or change the
+     path) and update `imageCredit` if the new one needs attribution. */
+  image: "img/roller.jpg",
+  imageAlt: "A jade facial roller: a smooth stone head at each end of a handle.",
+  imageCredit:
+    "Product photograph: “Face Roller” by jacobcariaga, used under CC&nbsp;BY&nbsp;2.0.",
+
   headline: "Do facial rollers really de-puff your face?",
 
   body: [

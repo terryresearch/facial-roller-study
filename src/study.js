@@ -239,7 +239,7 @@
         <span class="section">${STIMULUS.kicker}</span>
       </div>
       <h1 class="article-headline">${STIMULUS.headline}</h1>
-      <figure class="article-figure">${ROLLER_SVG}</figure>
+      <figure class="article-figure"><img src="${STIMULUS.image}" alt="${STIMULUS.imageAlt}" width="820" height="322" decoding="async"></figure>
       <div class="article-body">
         ${STIMULUS.body.map(p => `<p>${p}</p>`).join("")}
         <div class="claim-block">
@@ -252,9 +252,7 @@
   }
 
   /* Rendered ONCE. The same node is later moved into the left-hand pane
-     rather than duplicated, so the illustration's gradient ids stay unique
-     in the document — two copies would collide and the SVG would lose its
-     fills. */
+     rather than duplicated, so the browser never fetches the photo twice. */
   function renderArticle() {
     $("#article-full").innerHTML = articleHTML();
   }
@@ -781,6 +779,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     $("#done-code").textContent = CONFIG.completionCode;
+    $("#photo-credit").innerHTML = STIMULUS.imageCredit || "";
     initConsent();
     initIntro();
     if (PREVIEW || location.hostname === "localhost" || location.hostname === "127.0.0.1") {

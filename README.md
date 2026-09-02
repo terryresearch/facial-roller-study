@@ -29,7 +29,9 @@ counterbalanced, tying colour to the publication counterbalances colour against 
 for free; `theme_confirm` and `theme_disconfirm` record what each participant saw.
 
 The magazines are fictional and described identically, so source authority is held
-constant. The product illustration is inline SVG, shown identically in all four cells.
+constant. The product photograph (`img/roller.jpg`) is shown identically in all four cells.
+To swap it, drop a replacement in at that path and update `imageCredit` in the config block
+if the new photo needs attribution.
 
 ## Measures
 
@@ -80,6 +82,12 @@ Supabase → SQL Editor:
     select * from fr1_balance;  -- assigned vs completed per cell, live
 
 Exclude pilot rows with `where not is_test`.
+
+## Credits
+
+Product photograph: "Face Roller" by jacobcariaga, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/),
+[source](https://www.flickr.com/photos/190893163@N06/50556930426); cropped and rotated.
+The credit line is shown to participants on the debrief screen.
 
 ## Recruitment links
 

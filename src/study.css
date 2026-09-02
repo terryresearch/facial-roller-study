@@ -159,8 +159,9 @@ strong{ font-weight:650; color:var(--ink); }
   border:1px solid var(--rule);
   border-radius:12px;
   overflow:hidden;
+  display:flex; justify-content:center;
 }
-.article-figure svg{ display:block; width:100%; height:auto; }
+.article-figure img{ display:block; width:100%; height:auto; }
 .article-body p{
   font-family:var(--serif); font-size:16px; line-height:1.72; color:var(--ink-2);
   margin:0 0 1.05em;
