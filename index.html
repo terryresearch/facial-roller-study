@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Consumer Opinion Study</title>
+<style>
+/* =====================================================================
+   Disconfirming but Convincing — Facial Roller Study
+   ===================================================================== */
+
+:root{
+  --ink:            #14161a;
+  --ink-2:          #3d434e;
+  --ink-3:          #6b7280;
+  --ink-4:          #9aa1ad;
+  --rule:           #e3e5ea;
+  --rule-soft:      #eef0f3;
+  --paper:          #ffffff;
+  --canvas:         #f6f6f4;
+  --panel:          #fbfbfa;
+  --accent:         #1f3d5c;
+  --accent-soft:    #eaeff4;
+  --accent-line:    #b9c7d6;
+  --focus:          #2f6feb;
+
+  --serif: "Iowan Old Style", "Charter", Georgia, "Times New Roman", serif;
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+           "Helvetica Neue", Arial, sans-serif;
+
+  --measure-max: 620px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--canvas);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* =====================  App shell  ================================== */
+/* Fixed-viewport shell: the app never scrolls as a whole. Each screen
+   scrolls inside itself, so the stimulus pane and the measure pane keep
+   their own independent scroll positions in the split view. */
+#app{
+  height:100vh; height:100dvh; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+.screen{ display:none; flex:1; min-height:0; }
+.screen.is-active{ display:flex; flex-direction:column; }
+
+/* Centred single-column screens (consent, article, demographics, done) */
+.centered{
+  flex:1; display:flex; align-items:flex-start; justify-content:center;
+  padding:clamp(28px,6vh,72px) 24px 96px;
+  overflow-y:auto;
+}
+.centered > .sheet{
+  width:100%; max-width:var(--measure-max);
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:14px;
+  padding:clamp(28px,4vw,44px);
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 12px 32px -18px rgba(20,22,26,.18);
+  animation:rise .45s var(--ease) both;
+}
+.centered > .sheet.wide{ max-width:760px; }
+
+@keyframes rise{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none; } }
+
+/* =====================  Typography  ================================= */
+h1,h2,h3{ margin:0; font-weight:600; letter-spacing:-.012em; }
+h1{ font-size:clamp(22px,2.4vw,27px); line-height:1.25; }
+h2{ font-size:19px; line-height:1.35; }
+p{ margin:0 0 1em; line-height:1.65; color:var(--ink-2); }
+p:last-child{ margin-bottom:0; }
+strong{ font-weight:650; color:var(--ink); }
+
+.eyebrow{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-4); margin:0 0 10px;
+}
+
+.lede{ font-size:15.5px; color:var(--ink-2); }
+.fineprint{ font-size:13px; line-height:1.6; color:var(--ink-3); }
+
+/* =====================  Buttons  ==================================== */
+.btn{
+  appearance:none; border:1px solid transparent; cursor:pointer;
+  font-family:inherit; font-size:15px; font-weight:550; letter-spacing:-.005em;
+  padding:13px 26px; border-radius:9px;
+  background:var(--accent); color:#fff;
+  transition:background .16s var(--ease), transform .12s var(--ease), opacity .16s;
+}
+.btn:hover:not(:disabled){ background:#152c43; }
+.btn:active:not(:disabled){ transform:translateY(1px); }
+.btn:disabled{ background:#d7dae0; color:#9aa1ad; cursor:not-allowed; }
+.btn.ghost{
+  background:transparent; color:var(--ink-3); border-color:var(--rule);
+}
+.btn.ghost:hover:not(:disabled){ background:var(--rule-soft); color:var(--ink-2); }
+.btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.btn-row{ display:flex; align-items:center; gap:12px; margin-top:28px; }
+.btn-row.end{ justify-content:flex-end; }
+
+/* =====================  SPLIT LAYOUT  ==============================
+   Stimulus pinned to the left half, measures on the right half.       */
+.split{
+  flex:1; min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+.pane-stimulus{
+  min-height:0; overflow-y:auto;
+  background:var(--panel);
+  border-right:1px solid var(--rule);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-end;
+}
+.pane-stimulus > .article{ width:100%; max-width:520px; }
+
+.pane-measure{
+  min-height:0; overflow-y:auto;
+  background:var(--canvas);
+  padding:clamp(28px,4vh,56px) clamp(24px,3.4vw,52px) 72px;
+  display:flex; justify-content:flex-start;
+}
+.pane-measure > .measure-inner{ width:100%; max-width:520px; }
+
+/* Stimulus hidden (comprehension check) */
+.pane-stimulus.is-veiled > .article{ display:none; }
+.veil{
+  display:none; margin:auto; text-align:center; max-width:270px;
+  color:var(--ink-4); font-size:13.5px; line-height:1.6;
+}
+.pane-stimulus.is-veiled{ align-items:center; justify-content:center; }
+.pane-stimulus.is-veiled .veil{ display:block; }
+.veil svg{ display:block; margin:0 auto 14px; opacity:.5; }
+
+/* =====================  THE ARTICLE  ================================ */
+.article{ animation:rise .5s var(--ease) both; }
+
+.masthead{
+  display:flex; align-items:baseline; gap:10px;
+  padding-bottom:12px; margin-bottom:26px;
+  border-bottom:1.5px solid var(--ink);
+}
+.masthead .brand{
+  font-family:var(--serif); font-size:19px; font-weight:600;
+  letter-spacing:.01em; color:var(--ink);
+}
+.masthead .section{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+}
+
+.article-headline{
+  font-family:var(--serif); font-weight:600;
+  font-size:clamp(25px,2.7vw,31px); line-height:1.2; letter-spacing:-.015em;
+  margin:0 0 14px; color:var(--ink);
+}
+.article-standfirst{
+  font-family:var(--serif); font-size:16.5px; line-height:1.55;
+  color:var(--ink-3); margin:0 0 24px; font-style:italic;
+}
+.article-body p{
+  font-family:var(--serif); font-size:16px; line-height:1.72; color:var(--ink-2);
+  margin:0 0 1.05em;
+}
+
+/* The manufacturer's claim — set as a pull quote */
+.claim-block{
+  margin:26px 0; padding:20px 24px;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--ink);
+  border-radius:0 8px 8px 0;
+}
+.claim-block .claim-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:8px;
+}
+.claim-block .claim-text{
+  font-family:var(--serif); font-size:20px; line-height:1.35; font-weight:600;
+  color:var(--ink); letter-spacing:-.01em;
+}
+
+/* =====================  VERDICT CARDS  =============================
+   Both verdicts share an IDENTICAL visual treatment. Only the wording
+   differs, so no colour cue is confounded with the manipulation.      */
+.verdicts{ margin-top:32px; }
+
+.verdicts-label{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-4);
+  display:flex; align-items:center; gap:12px; margin-bottom:16px;
+}
+.verdicts-label::after{
+  content:""; flex:1; height:1px; background:var(--rule);
+}
+
+.verdict-card{
+  position:relative;
+  background:var(--paper);
+  border:1px solid var(--accent-line);
+  border-radius:11px;
+  padding:22px 24px 24px;
+  margin-bottom:14px;
+  box-shadow:0 1px 2px rgba(31,61,92,.05), 0 10px 26px -20px rgba(31,61,92,.35);
+  animation:rise .55s var(--ease) both;
+}
+.verdict-card:last-child{ margin-bottom:0; }
+.verdict-card:nth-child(3){ animation-delay:.09s; }
+
+/* hairline accent along the top edge */
+.verdict-card::before{
+  content:""; position:absolute; top:-1px; left:22px; right:22px; height:2px;
+  background:var(--accent); border-radius:2px;
+}
+
+/* Source block: descriptor above, masthead below. Stacking keeps every
+   card identical in height regardless of how long the title is. */
+.verdict-source{
+  padding-bottom:13px; margin-bottom:15px;
+  border-bottom:1px solid var(--rule-soft);
+}
+.verdict-source .tag{
+  display:block;
+  font-size:9.5px; font-weight:650; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-4); margin-bottom:5px;
+}
+.verdict-source .name{
+  display:block;
+  font-family:var(--serif); font-size:17px; font-weight:600;
+  color:var(--ink); letter-spacing:.005em; line-height:1.25;
+}
+
+.verdict-eyebrow{
+  font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:7px;
+}
+.verdict-headline{
+  font-family:var(--serif); font-size:19.5px; line-height:1.3; font-weight:600;
+  letter-spacing:-.012em; color:var(--ink); margin:0 0 11px;
+}
+.verdict-body{
+  font-size:14.5px; line-height:1.65; color:var(--ink-2); margin:0;
+}
+
+/* =====================  MEASURES  =================================== */
+.measure{ animation:rise .38s var(--ease) both; }
+
+.progress{
+  display:flex; align-items:center; gap:12px; margin-bottom:26px;
+}
+.progress-track{
+  flex:1; height:3px; background:var(--rule); border-radius:3px; overflow:hidden;
+}
+.progress-fill{
+  height:100%; background:var(--accent); border-radius:3px; width:0;
+  transition:width .45s var(--ease);
+}
+.progress-count{
+  font-size:11.5px; font-weight:550; color:var(--ink-4); letter-spacing:.03em;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+
+.measure-prompt{
+  font-size:19px; line-height:1.4; font-weight:550; letter-spacing:-.012em;
+  color:var(--ink); margin:0 0 8px;
+}
+.measure-help{ font-size:13px; line-height:1.55; color:var(--ink-4); margin:0 0 26px; }
+
+/* ---------- 0-100 slider ---------- */
+.slider-wrap{ padding:6px 0 4px; }
+.slider-value{
+  text-align:center; margin-bottom:18px; height:42px;
+  display:flex; align-items:center; justify-content:center;
+}
+.slider-value .num{
+  font-size:33px; font-weight:600; letter-spacing:-.02em; color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.slider-value .pct{ font-size:18px; font-weight:550; color:var(--accent-line); margin-left:2px; }
+.slider-value .placeholder{ font-size:13.5px; color:var(--ink-4); }
+
+.track-outer{ position:relative; padding:14px 0; cursor:pointer; }
+.track{
+  position:relative; height:5px; background:var(--rule); border-radius:5px;
+}
+.track-fill{
+  position:absolute; inset:0 auto 0 0; width:0;
+  background:var(--accent); border-radius:5px; opacity:0;
+  transition:opacity .2s;
+}
+.track-ticks{ position:absolute; inset:0; pointer-events:none; }
+.track-ticks span{
+  position:absolute; top:50%; width:1px; height:9px; margin-top:-4.5px;
+  background:var(--rule); transform:translateX(-50%);
+}
+.thumb{
+  position:absolute; top:50%; left:0; width:22px; height:22px; margin:-11px 0 0 -11px;
+  background:#fff; border:2px solid var(--accent); border-radius:50%;
+  box-shadow:0 2px 8px rgba(31,61,92,.22);
+  opacity:0; transform:scale(.6); pointer-events:none;
+  transition:opacity .18s var(--ease), transform .18s var(--ease);
+}
+.is-engaged .thumb{ opacity:1; transform:scale(1); }
+.is-engaged .track-fill{ opacity:1; }
+.track-outer:focus-visible{ outline:2px solid var(--focus); outline-offset:6px; border-radius:6px; }
+
+.track-labels{
+  display:flex; justify-content:space-between; gap:16px; margin-top:14px;
+}
+.track-labels span{ font-size:12.5px; color:var(--ink-3); line-height:1.4; max-width:44%; }
+.track-labels span:last-child{ text-align:right; }
+
+/* ---------- bipolar slider (mixed cell) ---------- */
+.bipolar .track-ticks span.center{ height:15px; margin-top:-7.5px; background:var(--ink-4); }
+.bipolar .track-fill{
+  background:var(--accent); border-radius:5px;
+}
+.bipolar-labels{
+  display:grid; grid-template-columns:1fr auto 1fr; gap:14px; margin-top:16px;
+  align-items:start;
+}
+.bipolar-labels .side{
+  font-size:12.5px; line-height:1.45; color:var(--ink-2);
+}
+.bipolar-labels .side .who{ display:block; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.bipolar-labels .side.right{ text-align:right; }
+.bipolar-labels .mid{
+  font-size:11.5px; line-height:1.35; color:var(--ink-4); text-align:center;
+  padding-top:1px;
+}
+.bipolar-readout{
+  text-align:center; height:42px; display:flex; align-items:center; justify-content:center;
+  font-size:13.5px; color:var(--ink-3); margin-bottom:16px; line-height:1.45;
+}
+.bipolar-readout strong{ color:var(--accent); font-weight:600; }
+
+/* ---------- semantic differential ---------- */
+.semdiff-scale{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:0 0 12px; margin-bottom:4px;
+}
+.semdiff-row{
+  display:grid; grid-template-columns:minmax(76px,1fr) auto minmax(76px,1fr);
+  gap:10px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--rule-soft);
+}
+.semdiff-row:first-of-type{ border-top:1px solid var(--rule); }
+.semdiff-row .anchor{ font-size:13px; line-height:1.35; color:var(--ink-2); }
+.semdiff-row .anchor.right{ text-align:right; }
+
+.opt-row{ display:flex; gap:6px; }
+.opt{
+  position:relative; width:31px; height:31px; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+}
+.opt input{
+  position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; z-index:2;
+}
+.opt .dot{
+  width:100%; height:100%; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.opt:hover .dot{ border-color:var(--accent-line); }
+.opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+  transform:scale(1.06);
+}
+.opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.scale-numbers{ display:flex; gap:6px; }
+.scale-numbers span{
+  width:31px; text-align:center; font-size:11px; color:var(--ink-4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- likert rows (stacked statement + scale) ---------- */
+.likert-item{ padding:18px 0; border-top:1px solid var(--rule-soft); }
+.likert-item:first-of-type{ border-top:1px solid var(--rule); }
+.likert-item .statement{
+  font-size:14.5px; line-height:1.5; color:var(--ink); margin-bottom:14px;
+}
+.likert-scale{ display:flex; gap:6px; align-items:flex-start; }
+.likert-opt{
+  flex:1; min-width:0; display:flex; flex-direction:column;
+  align-items:center; gap:6px; cursor:pointer;
+}
+.likert-opt .dot{
+  width:29px; height:29px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s, transform .15s var(--ease);
+}
+.likert-opt:hover .dot{ border-color:var(--accent-line); }
+.likert-opt input{ position:absolute; opacity:0; pointer-events:none; }
+.likert-opt input:checked + .dot{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper); transform:scale(1.06);
+}
+.likert-opt input:focus-visible + .dot{ outline:2px solid var(--focus); outline-offset:2px; }
+.likert-opt .lab{
+  font-size:10.5px; line-height:1.25; color:var(--ink-4); text-align:center;
+  min-height:1.25em;
+}
+
+/* ---------- single choice ---------- */
+.choice-list{ display:flex; flex-direction:column; gap:10px; }
+.choice{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:15px 17px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s, box-shadow .15s;
+}
+.choice:hover{ border-color:var(--accent-line); }
+.choice input{ position:absolute; opacity:0; pointer-events:none; }
+.choice .radio{
+  flex:0 0 auto; width:19px; height:19px; margin-top:1px; border-radius:50%;
+  border:1.5px solid var(--rule); background:var(--paper);
+  transition:border-color .15s, background .15s;
+}
+.choice input:checked ~ .radio{
+  border-color:var(--accent); background:var(--accent);
+  box-shadow:inset 0 0 0 3.5px var(--paper);
+}
+.choice:has(input:checked){
+  border-color:var(--accent); background:var(--accent-soft);
+}
+.choice input:focus-visible ~ .radio{ outline:2px solid var(--focus); outline-offset:2px; }
+.choice .text{ font-size:14.5px; line-height:1.5; color:var(--ink); }
+
+/* ---------- textarea / inputs ---------- */
+textarea, input[type="number"], input[type="text"], select{
+  width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+  padding:12px 14px; border:1px solid var(--rule); border-radius:9px;
+  background:var(--paper); transition:border-color .15s, box-shadow .15s;
+}
+textarea{ min-height:110px; resize:vertical; line-height:1.6; }
+textarea:focus, input:focus, select:focus{
+  outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+input[type="number"]{ max-width:150px; }
+select{ appearance:none; background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; padding-right:38px; }
+
+/* =====================  Consent  ==================================== */
+.consent-list{ margin:0 0 4px; padding:0; list-style:none; }
+.consent-list li{
+  position:relative; padding:0 0 12px 22px;
+  font-size:14.5px; line-height:1.6; color:var(--ink-2);
+}
+.consent-list li::before{
+  content:""; position:absolute; left:3px; top:9px;
+  width:5px; height:5px; border-radius:50%; background:var(--accent-line);
+}
+.divider{ height:1px; background:var(--rule); margin:26px 0; }
+
+.agree{
+  display:flex; align-items:flex-start; gap:13px; cursor:pointer;
+  padding:16px 18px; border:1px solid var(--rule); border-radius:10px;
+  background:var(--paper); transition:border-color .15s, background .15s;
+}
+.agree:hover{ border-color:var(--accent-line); }
+.agree:has(input:checked){ border-color:var(--accent); background:var(--accent-soft); }
+.agree input{ position:absolute; opacity:0; pointer-events:none; }
+.agree .box{
+  flex:0 0 auto; width:20px; height:20px; margin-top:1px; border-radius:5px;
+  border:1.5px solid var(--rule); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .15s, background .15s;
+}
+.agree .box svg{ opacity:0; transition:opacity .15s; }
+.agree input:checked ~ .box{ border-color:var(--accent); background:var(--accent); }
+.agree input:checked ~ .box svg{ opacity:1; }
+.agree input:focus-visible ~ .box{ outline:2px solid var(--focus); outline-offset:2px; }
+.agree .text{ font-size:14.5px; line-height:1.5; color:var(--ink); font-weight:500; }
+
+/* =====================  Demographics  =============================== */
+.demo-item{ padding:22px 0; border-top:1px solid var(--rule-soft); }
+.demo-item:first-of-type{ border-top:none; padding-top:6px; }
+.demo-label{ font-size:15px; line-height:1.5; color:var(--ink); font-weight:500; margin-bottom:14px; }
+.demo-radios{ display:flex; flex-direction:column; gap:8px; }
+.demo-radios .choice{ padding:12px 15px; }
+.demo-radios .choice .text{ font-size:14px; }
+.input-row{ display:flex; align-items:center; gap:10px; }
+.input-row .suffix{ font-size:14px; color:var(--ink-3); }
+
+/* =====================  Completion  ================================= */
+.done-mark{
+  width:46px; height:46px; border-radius:50%; background:var(--accent-soft);
+  display:flex; align-items:center; justify-content:center; margin-bottom:22px;
+}
+.code-box{
+  margin-top:20px; padding:18px 20px; border:1px dashed var(--accent-line);
+  border-radius:10px; background:var(--accent-soft); text-align:center;
+}
+.code-box .label{
+  font-size:11px; font-weight:650; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-3); margin-bottom:7px;
+}
+.code-box .code{
+  font-size:21px; font-weight:600; letter-spacing:.05em; color:var(--accent);
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* =====================  Misc  ======================================= */
+.err{
+  font-size:13.5px; color:#a3312a; margin-top:14px; line-height:1.5;
+  display:none;
+}
+.err.show{ display:block; }
+.saving{ font-size:12.5px; color:var(--ink-4); margin-top:14px; }
+
+/* =====================  Responsive  =================================
+   Below 900px the split stacks: the article sits on top in a scrollable
+   band, the measure sits beneath it. The requested left/right split is
+   preserved wherever the viewport can carry it.                        */
+@media (max-width:900px){
+  .split{ grid-template-columns:1fr; grid-template-rows:minmax(180px,38vh) 1fr; }
+  .pane-stimulus{
+    border-right:none; border-bottom:1px solid var(--rule);
+    padding:24px 20px 28px; justify-content:center;
+  }
+  .pane-measure{ padding:26px 20px 80px; justify-content:center; }
+  .pane-stimulus > .article, .pane-measure > .measure-inner{ max-width:560px; }
+  .article-headline{ font-size:22px; }
+  .measure-prompt{ font-size:17.5px; }
+  .semdiff-row, .semdiff-scale{ grid-template-columns:minmax(60px,1fr) auto minmax(60px,1fr); gap:8px; }
+  .opt{ width:28px; height:28px; }
+  .scale-numbers span{ width:28px; }
+  .bipolar-labels{ gap:10px; }
+}
+
+@media (max-width:560px){
+  .semdiff-row{
+    grid-template-columns:1fr; gap:8px; justify-items:center; text-align:center;
+  }
+  .semdiff-row .anchor.right{ text-align:center; }
+  .semdiff-scale{ display:none; }
+  .opt{ width:34px; height:34px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= 1. CONSENT ================= -->
+  <section id="screen-consent" class="screen is-active">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">Research study</div>
+        <h1>Before you begin</h1>
+        <p class="lede" style="margin-top:14px">
+          You are invited to take part in a short research study about how people
+          evaluate everyday consumer products. Please read this page before deciding
+          whether to take part.
+        </p>
+
+        <div class="divider"></div>
+
+        <ul class="consent-list">
+          <li><strong>What you will do.</strong> You will read a short article about a
+              consumer product and answer a series of questions about it. The study takes
+              about 4&ndash;6 minutes.</li>
+          <li><strong>Voluntary participation.</strong> Taking part is entirely voluntary.
+              You may stop at any time by closing this window, without giving a reason and
+              without penalty.</li>
+          <li><strong>Anonymity.</strong> Your responses are anonymous. We do not collect
+              your name, email address, or any other directly identifying information.</li>
+          <li><strong>Use of the data.</strong> Responses are stored securely and analysed
+              only in aggregate for academic research purposes.</li>
+          <li><strong>Risks and benefits.</strong> There are no anticipated risks beyond
+              those of ordinary daily life. There is no direct benefit to you other than
+              any compensation stated in the recruitment advertisement.</li>
+          <li><strong>Questions.</strong> If you have questions about this study, you may
+              contact the research team using the details provided where you found this
+              study.</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <label class="agree">
+          <input type="checkbox" id="consent-agree">
+          <span class="box">
+            <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+              <path d="M1 4.2L4.3 7.5L11 1" stroke="#fff" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="text">
+            I am 18 or older, I have read the information above, and I agree to take part.
+          </span>
+        </label>
+
+        <div class="btn-row">
+          <button class="btn" id="consent-btn" disabled>I agree — begin the study</button>
+        </div>
+        <div class="err" id="consent-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. ARTICLE ================= -->
+  <section id="screen-article" class="screen">
+    <div class="centered">
+      <div class="sheet wide">
+        <div class="eyebrow">Please read the following</div>
+        <div id="article-full" class="article" style="margin-top:18px"></div>
+        <div class="btn-row">
+          <button class="btn" id="article-btn" disabled>Continue to the questions</button>
+        </div>
+        <p class="fineprint" style="margin-top:14px">
+          The article stays visible on the left while you answer, so you can refer back to it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. MEASURES (split view) ================= -->
+  <section id="screen-measures" class="screen">
+    <div class="split">
+      <div class="pane-stimulus" id="stimulus-pane">
+        <div id="article-split" class="article"></div>
+        <div class="veil">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+          The article is hidden for this question.<br>Please answer from memory.
+        </div>
+      </div>
+      <div class="pane-measure" id="measure-pane"></div>
+    </div>
+  </section>
+
+  <!-- ================= 4. DEMOGRAPHICS ================= -->
+  <section id="screen-demographics" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="progress">
+          <div class="progress-track"><div class="progress-fill" id="demo-progress"></div></div>
+          <div class="progress-count" id="demo-count"></div>
+        </div>
+        <div class="eyebrow">Finally</div>
+        <h1>A few questions about you</h1>
+        <p class="measure-help" style="margin-top:10px">
+          These help us describe the sample. They are not linked to your identity.
+        </p>
+        <div id="demo-body"></div>
+        <div class="btn-row">
+          <button class="btn" id="demo-btn" disabled>Submit and finish</button>
+        </div>
+        <div class="err" id="demo-err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. DONE ================= -->
+  <section id="screen-done" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="done-mark">
+          <svg width="21" height="16" viewBox="0 0 21 16" fill="none">
+            <path d="M2 8.2L7.4 13.6L19 2" stroke="#1f3d5c" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Thank you — your responses have been recorded.</h1>
+        <p class="lede" style="margin-top:14px">
+          That is the end of the study. We appreciate the time you gave it.
+        </p>
+
+        <div class="divider"></div>
+
+        <p class="fineprint">
+          <strong>A note on what you read.</strong> The article and the product evaluations
+          in this study were written for research purposes and do not describe real published
+          testing. The magazines named in it are fictional. Nothing in this study should be
+          taken as advice about whether any skincare product works.
+        </p>
+
+        <div class="code-box">
+          <div class="label">Your completion code</div>
+          <div class="code" id="done-code"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =====================================================================
+   Disconfirming but Convincing — Facial Roller Study (4 cells)
+   Configuration: endpoints, stimulus copy, and measures.
+   Everything a researcher would want to edit lives in this file.
+   ===================================================================== */
+
+const CONFIG = {
+  studyId: "fr1",
+  supabaseUrl: "https://uwrgeizwyybwtzwztrln.supabase.co",
+  supabaseKey: "sb_publishable_L7a-Ve4_pt-A3MkqNpaMqg_bU5wMoxd",
+
+  /* Seconds the article must be on screen before "Continue" unlocks. */
+  minReadSeconds: 7,
+
+  /* Shown on the completion screen. Replace with your Prolific/CloudResearch
+     completion URL to redirect automatically; leave null to just show a code. */
+  completionUrl: null,
+  completionCode: "DBC-FR-2026"
+};
+
+/* ---------------------------------------------------------------------
+   STIMULUS
+   The introduction is IDENTICAL in all four conditions. Conditions differ
+   only by which verdict card(s) appear beneath it.
+   Both verdict cards use identical visual treatment — the only difference
+   between them is the wording — so that no colour/valence cue is confounded
+   with the manipulation.
+   --------------------------------------------------------------------- */
+const STIMULUS = {
+  kicker: "Skincare",
+  headline: "Do facial rollers really de-puff your face?",
+  standfirst:
+    "They are on every beauty shelf and in every morning routine. We looked at what they promise.",
+
+  body: [
+    "Facial rollers — the small handheld tools with a smooth stone or metal head that you glide across your cheeks, jaw, and under your eyes — have become one of the most widely sold items in skincare. They are sold in most drugstores and beauty retailers, typically for between $15 and $60.",
+    "Manufacturers market them for a range of benefits, but the claim that appears most often on the packaging and in the advertising is this one:"
+  ],
+
+  claim: "Reduces facial puffiness.",
+
+  bodyAfterClaim: [
+    "The reasoning offered by manufacturers is that rolling the tool across the face moves excess fluid out of the tissue beneath the skin, so the face looks less swollen — particularly around the eyes and along the jawline first thing in the morning."
+  ],
+
+  /* The two magazines. Fictional, so that no real publication is depicted
+     as having reached a verdict it never reached. Both are described
+     identically, so source authority is held constant across conditions
+     and across the two sources in the mixed cell. */
+  sourceNames: ["Wellbeing Monthly", "The Health Review"],
+  sourceTag: "Established health &amp; lifestyle magazine",
+
+  verdict: {
+    confirming: {
+      eyebrow: "Our verdict",
+      headline: "The claim holds up.",
+      body:
+        "Our editorial team put facial rollers through our standard product evaluation. Based on what we measured, facial rollers <strong>did</strong> produce a meaningful reduction in facial puffiness. We conclude that the manufacturers’ claim <strong>is supported</strong>."
+    },
+    disconfirming: {
+      eyebrow: "Our verdict",
+      headline: "The claim does not hold up.",
+      body:
+        "Our editorial team put facial rollers through our standard product evaluation. Based on what we measured, facial rollers <strong>did not</strong> produce a meaningful reduction in facial puffiness. We conclude that the manufacturers’ claim <strong>is not supported</strong>."
+    }
+  },
+
+  sectionLabelSingle: "Independent product test",
+  sectionLabelMixed: "Independent product tests"
+};
+
+</script>
+
+<script>
+/* =====================================================================
+   MEASURES
+   Rendered one at a time in the right-hand panel.
+   `when` controls which conditions a measure is shown in.
+   ===================================================================== */
+
+const ALL   = ["control", "confirming", "disconfirming", "mixed"];
+const VERDICT_CELLS = ["confirming", "disconfirming"];
+
+const MEASURES = [
+
+  /* ---------- PRIMARY DV: belief in the claim (0-100) ----------------
+     Anchored to the claim itself, not to the article, so it is
+     comparable across all four cells including control.
+     Retains the 0-100 slider used in the manuscript for continuity. */
+  {
+    id: "likelihood",
+    when: ALL,
+    type: "slider100",
+    eyebrow: "Question 1",
+    prompt: "How likely is it that facial rollers actually reduce facial puffiness?",
+    help: "Drag the slider, or click anywhere on the line, to answer.",
+    leftLabel: "Very unlikely",
+    rightLabel: "Very likely",
+    field: "dv_likelihood"
+  },
+
+  /* ---------- Claim belief index (4 items, 7-pt) --------------------
+     Semantic differential adapted from Beltramini's (1982) believability
+     scale, re-anchored from the advertisement to the claim itself. */
+  {
+    id: "belief",
+    when: ALL,
+    type: "semdiff",
+    eyebrow: "Question 2",
+    prompt: "The claim that facial rollers reduce facial puffiness is…",
+    help: "Select one box on each row.",
+    items: [
+      { field: "belief_believable", left: "Unbelievable",   right: "Believable" },
+      { field: "belief_credible",   left: "Not credible",   right: "Credible" },
+      { field: "belief_convincing", left: "Not convincing", right: "Convincing" },
+      { field: "belief_true",       left: "Definitely false", right: "Definitely true" }
+    ]
+  },
+
+  /* ---------- Belief certainty (2 items, 7-pt) ----------------------
+     Tormala & Rucker (2018). Captures belief STRENGTH independently of
+     direction — the mixed cell is expected to lower certainty even where
+     it leaves the mean belief unchanged. */
+  {
+    id: "certainty",
+    when: ALL,
+    type: "likert",
+    eyebrow: "Question 3",
+    prompt: "Thinking about the judgment you just made…",
+    help: "Select one box on each row.",
+    scaleLabels: ["Not at all", "", "", "Moderately", "", "", "Extremely"],
+    items: [
+      { field: "certainty_certain",   text: "How <em>certain</em> are you about whether facial rollers reduce puffiness?" },
+      { field: "certainty_confident", text: "How <em>confident</em> are you that your judgment is correct?" }
+    ]
+  },
+
+  /* ---------- Perceived objectivity — single-verdict cells ----------
+     The manuscript's own four-item objectivity index. */
+  {
+    id: "objectivity",
+    when: VERDICT_CELLS,
+    type: "semdiff",
+    eyebrow: "Question 4",
+    prompt: "The evaluation carried out by {SOURCE} was…",
+    help: "Select one box on each row.",
+    items: [
+      { field: "obj_unbiased",    left: "Biased",          right: "Unbiased" },
+      { field: "obj_objective",   left: "Not objective",   right: "Objective" },
+      { field: "obj_independent", left: "Not independent", right: "Independent" },
+      { field: "obj_impartial",   left: "Not impartial",   right: "Impartial" }
+    ]
+  },
+
+  /* ---------- Perceived objectivity — mixed cell, source shown FIRST */
+  {
+    id: "objectivity_first",
+    when: ["mixed"],
+    type: "semdiff",
+    eyebrow: "Question 4",
+    prompt: "The evaluation carried out by {SOURCE_FIRST} was…",
+    help: "Select one box on each row.",
+    items: [
+      { field: "objf_unbiased",    left: "Biased",          right: "Unbiased" },
+      { field: "objf_objective",   left: "Not objective",   right: "Objective" },
+      { field: "objf_independent", left: "Not independent", right: "Independent" },
+      { field: "objf_impartial",   left: "Not impartial",   right: "Impartial" }
+    ]
+  },
+
+  /* ---------- Perceived objectivity — mixed cell, source shown SECOND */
+  {
+    id: "objectivity_second",
+    when: ["mixed"],
+    type: "semdiff",
+    eyebrow: "Question 5",
+    prompt: "The evaluation carried out by {SOURCE_SECOND} was…",
+    help: "Select one box on each row.",
+    items: [
+      { field: "objs_unbiased",    left: "Biased",          right: "Unbiased" },
+      { field: "objs_objective",   left: "Not objective",   right: "Objective" },
+      { field: "objs_independent", left: "Not independent", right: "Independent" },
+      { field: "objs_impartial",   left: "Not impartial",   right: "Impartial" }
+    ]
+  },
+
+  /* ---------- Mixed cell: which verdict was relied upon -------------
+     Bipolar. Displayed left = source shown first, right = source shown
+     second; recoded on submission so that + = the DISCONFIRMING source. */
+  {
+    id: "reliance",
+    when: ["mixed"],
+    type: "bipolar",
+    eyebrow: "Question 6",
+    prompt: "In forming your own judgment about whether facial rollers reduce puffiness, which conclusion did you rely on more?",
+    help: "Click anywhere on the line, including the middle.",
+    centerLabel: "I relied on<br>both equally",
+    field: "reliance_raw"
+  },
+
+  {
+    id: "rel_objectivity",
+    when: ["mixed"],
+    type: "bipolar",
+    eyebrow: "Question 7",
+    prompt: "Which of the two evaluations struck you as more <strong>objective</strong>?",
+    help: "Click anywhere on the line, including the middle.",
+    centerLabel: "Equally<br>objective",
+    field: "relobj_raw"
+  },
+
+  {
+    id: "rel_credibility",
+    when: ["mixed"],
+    type: "bipolar",
+    eyebrow: "Question 8",
+    prompt: "Which of the two evaluations did you find more <strong>credible</strong>?",
+    help: "Click anywhere on the line, including the middle.",
+    centerLabel: "Equally<br>credible",
+    field: "relcred_raw"
+  },
+
+  {
+    id: "reliance_open",
+    when: ["mixed"],
+    type: "textarea",
+    eyebrow: "Question 9",
+    prompt: "In a sentence or two, why did you weigh them that way?",
+    help: "There are no right answers — whatever went through your mind is useful.",
+    placeholder: "Type your answer here…",
+    optional: true,
+    field: "reliance_open"
+  },
+
+  /* ---------- Comprehension check ----------------------------------
+     The article is HIDDEN for this screen so the check is diagnostic
+     rather than a reading exercise. */
+  {
+    id: "mcheck",
+    when: ALL,
+    type: "choice",
+    hideStimulus: true,
+    eyebrow: "One last thing about the article",
+    prompt: "Thinking back to what you read, what conclusion — if any — was reported about the puffiness claim?",
+    help: "The article is hidden for this question. Please answer from memory.",
+    field: "mc_verdict",
+    options: [
+      { value: "confirmed",    text: "A magazine tested the claim and concluded that it <strong>is supported</strong>" },
+      { value: "disconfirmed", text: "A magazine tested the claim and concluded that it <strong>is not supported</strong>" },
+      { value: "mixed",        text: "Two magazines tested the claim and <strong>reached opposite conclusions</strong>" },
+      { value: "none",         text: "<strong>No test or conclusion</strong> was reported — only the claim itself" }
+    ]
+  }
+];
+
+/* Correct comprehension-check answer per condition. */
+const MC_KEY = {
+  control:       "none",
+  confirming:    "confirmed",
+  disconfirming: "disconfirmed",
+  mixed:         "mixed"
+};
+
+/* ---------- Demographics (shown without the stimulus) --------------- */
+const DEMOGRAPHICS = [
+  { field: "age", type: "number", label: "What is your age?", min: 18, max: 110, suffix: "years" },
+  {
+    field: "gender", type: "radio", label: "What is your gender?",
+    options: ["Woman", "Man", "Non-binary", "Prefer to self-describe", "Prefer not to say"],
+    selfDescribe: "Prefer to self-describe", selfField: "gender_self"
+  },
+  {
+    field: "education", type: "select", label: "What is the highest level of education you have completed?",
+    options: ["Less than high school", "High school / GED", "Some college, no degree",
+              "Associate degree", "Bachelor's degree", "Master's degree",
+              "Doctoral or professional degree", "Prefer not to say"]
+  },
+  {
+    field: "prior_use", type: "radio", label: "Have you ever used a facial roller?",
+    options: ["Never used one", "Tried one once or twice", "Use one occasionally", "Use one regularly"]
+  },
+  {
+    field: "familiarity", type: "scale7", label: "Before today, how familiar were you with facial rollers?",
+    left: "Not at all familiar", right: "Extremely familiar"
+  }
+];
+
+</script>
+
+<script>
+/* =====================================================================
+   Disconfirming but Convincing — Facial Roller Study
+   Flow: consent -> article -> measures (split view) -> demographics -> done
+   ===================================================================== */
+
+(function () {
+  "use strict";
+
+  /* ---------------- session state ---------------- */
+  const S = {
+    pid: null,          // participant id (Prolific PID when present)
+    pidSource: null,
+    isTest: false,
+    blurCount: 0,
+    startedAt: 0,
+    condition: null,
+    confirmFirst: null,
+    sourcePrimary: null,
+    sourceConfirm: null,
+    sourceDisconfirm: null,
+    sourceFirst: null,
+    sourceSecond: null,
+    answers: {},
+    timings: {},
+    queue: [],
+    idx: 0,
+    screenEnteredAt: 0
+  };
+
+  const $  = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, html) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  };
+
+  /* ---------------- Supabase RPC ---------------- */
+  async function rpc(fn, body) {
+    if (PREVIEW) { console.log("[preview] skipped", fn, body); return { preview: true }; }
+    const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: CONFIG.supabaseKey,
+        Authorization: `Bearer ${CONFIG.supabaseKey}`
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`${fn} failed: ${res.status} ${await res.text()}`);
+    const txt = await res.text();
+    return txt ? JSON.parse(txt) : null;
+  }
+
+  function makeUid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return "s-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
+  /* ---------------- screen switching ---------------- */
+  function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("is-active"));
+    $("#" + id).classList.add("is-active");
+    window.scrollTo(0, 0);
+    const pane = $("#" + id + " .pane-measure");
+    if (pane) pane.scrollTop = 0;
+  }
+
+  /* =====================================================================
+     1. CONSENT
+     ===================================================================== */
+  function initConsent() {
+    const box  = $("#consent-agree");
+    const btn  = $("#consent-btn");
+    const err  = $("#consent-err");
+    box.addEventListener("change", () => { btn.disabled = !box.checked; });
+
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      btn.textContent = "Starting…";
+      err.classList.remove("show");
+      try {
+        await startSession();
+        renderArticle();
+        show("screen-article");
+        beginReadTimer();
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "I agree — begin the study";
+        err.textContent = "We could not start the study. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    });
+  }
+
+  /* Preview mode: forces a condition and disables all database writes.
+     Only ever active on localhost / file:// — inert once deployed. */
+  const PREVIEW = (function () {
+    const host = location.hostname;
+    const local = host === "localhost" || host === "127.0.0.1" || location.protocol === "file:";
+    if (!local) return null;
+    const c = new URLSearchParams(location.search).get("preview");
+    return ["control", "confirming", "disconfirming", "mixed"].indexOf(c) !== -1 ? c : null;
+  })();
+
+  async function startSession() {
+    const q = new URLSearchParams(location.search);
+
+    /* participant id: Prolific PID when present, else a stable random id */
+    const prolific = q.get("PROLIFIC_PID") || q.get("participant_id") || "";
+    if (prolific) { S.pid = prolific; S.pidSource = "prolific"; }
+    else {
+      let anon = sessionStorage.getItem("fr1_pid");
+      if (!anon) { anon = "anon-" + makeUid(); sessionStorage.setItem("fr1_pid", anon); }
+      S.pid = anon; S.pidSource = "anonymous";
+    }
+    S.isTest = q.get("test") === "1";
+    S.startedAt = Date.now();
+
+    if (PREVIEW) {
+      S.condition = PREVIEW;
+      S.confirmFirst = q.get("swap") !== "1";
+      S.nameSwap = false;
+      applySources();
+      S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
+      return;
+    }
+
+    const meta = {
+      prolific_study_id: q.get("STUDY_ID") || "",
+      prolific_session:  q.get("SESSION_ID") || "",
+      pid_source:        S.pidSource,
+      is_test:           S.isTest,
+      user_agent:        navigator.userAgent,
+      screen_w:          window.screen.width,
+      screen_h:          window.screen.height,
+      is_mobile:         window.matchMedia("(max-width: 900px)").matches
+    };
+
+    const a = await rpc("assign", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_session: sessionStorage.getItem("fr1_sid") || (function () {
+        const v = makeUid(); sessionStorage.setItem("fr1_sid", v); return v;
+      })(),
+      p_meta: meta
+    });
+
+    S.condition = a.factors.condition;
+
+    /* `label_order` is the strictly alternating counterbalance handed back
+       by assign(). Single-verdict cells alternate which magazine carries the
+       verdict; the mixed cell alternates which verdict is shown first. */
+    const order = a.factors.label_order;
+    if (S.condition === "mixed") {
+      S.confirmFirst = order !== "disconfirm_first";
+      S.nameSwap     = Math.random() < 0.5;   // nuisance factor, randomised
+    } else {
+      S.confirmFirst = true;
+      S.nameSwap     = order === "name_b";
+    }
+    applySources();
+    S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
+  }
+
+  /* Resolve the two magazine names onto their roles. */
+  function applySources() {
+    const names = STIMULUS.sourceNames;
+    const n1 = S.nameSwap ? names[1] : names[0];
+    const n2 = S.nameSwap ? names[0] : names[1];
+    S.sourcePrimary    = n1;
+    S.sourceConfirm    = S.confirmFirst ? n1 : n2;
+    S.sourceDisconfirm = S.confirmFirst ? n2 : n1;
+    S.sourceFirst      = S.confirmFirst ? S.sourceConfirm : S.sourceDisconfirm;
+    S.sourceSecond     = S.confirmFirst ? S.sourceDisconfirm : S.sourceConfirm;
+  }
+
+  /* =====================================================================
+     2. ARTICLE
+     ===================================================================== */
+  function verdictCardHTML(sourceName, kind) {
+    const v = STIMULUS.verdict[kind];
+    return `
+      <article class="verdict-card">
+        <div class="verdict-source">
+          <span class="tag">${STIMULUS.sourceTag}</span>
+          <span class="name">${sourceName}</span>
+        </div>
+        <div class="verdict-eyebrow">${v.eyebrow}</div>
+        <h3 class="verdict-headline">${v.headline}</h3>
+        <p class="verdict-body">${v.body}</p>
+      </article>`;
+  }
+
+  function articleHTML() {
+    let verdicts = "";
+
+    if (S.condition === "confirming" || S.condition === "disconfirming") {
+      verdicts = `
+        <section class="verdicts">
+          <div class="verdicts-label">${STIMULUS.sectionLabelSingle}</div>
+          ${verdictCardHTML(S.sourcePrimary, S.condition)}
+        </section>`;
+    } else if (S.condition === "mixed") {
+      const first  = S.confirmFirst
+        ? verdictCardHTML(S.sourceConfirm, "confirming")
+        : verdictCardHTML(S.sourceDisconfirm, "disconfirming");
+      const second = S.confirmFirst
+        ? verdictCardHTML(S.sourceDisconfirm, "disconfirming")
+        : verdictCardHTML(S.sourceConfirm, "confirming");
+      verdicts = `
+        <section class="verdicts">
+          <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
+          ${first}${second}
+        </section>`;
+    }
+
+    return `
+      <div class="masthead">
+        <span class="brand">The Consumer Desk</span>
+        <span class="section">${STIMULUS.kicker}</span>
+      </div>
+      <h1 class="article-headline">${STIMULUS.headline}</h1>
+      <p class="article-standfirst">${STIMULUS.standfirst}</p>
+      <div class="article-body">
+        ${STIMULUS.body.map(p => `<p>${p}</p>`).join("")}
+        <div class="claim-block">
+          <div class="claim-label">The manufacturers’ claim</div>
+          <div class="claim-text">“${STIMULUS.claim}”</div>
+        </div>
+        ${STIMULUS.bodyAfterClaim.map(p => `<p>${p}</p>`).join("")}
+      </div>
+      ${verdicts}`;
+  }
+
+  function renderArticle() {
+    const html = articleHTML();
+    $("#article-full").innerHTML  = html;
+    $("#article-split").innerHTML = html;
+  }
+
+  function beginReadTimer() {
+    const btn = $("#article-btn");
+    let left = CONFIG.minReadSeconds;
+    btn.disabled = true;
+    const base = "Continue to the questions";
+    btn.textContent = `${base} (${left})`;
+    const t = setInterval(() => {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(t);
+        btn.disabled = false;
+        btn.textContent = base;
+      } else {
+        btn.textContent = `${base} (${left})`;
+      }
+    }, 1000);
+
+    btn.onclick = () => {
+      S.timings.article_ms = Date.now() - S.articleStart;
+      S.idx = 0;
+      show("screen-measures");
+      renderMeasure();
+    };
+    S.articleStart = Date.now();
+  }
+
+  /* =====================================================================
+     3. MEASURES
+     ===================================================================== */
+  function fillTokens(str) {
+    return str
+      .replace(/\{SOURCE_FIRST\}/g,  `<strong>${S.sourceFirst}</strong>`)
+      .replace(/\{SOURCE_SECOND\}/g, `<strong>${S.sourceSecond}</strong>`)
+      .replace(/\{SOURCE\}/g,        `<strong>${S.sourcePrimary}</strong>`);
+  }
+
+  /* total steps = measures + demographics screen */
+  function totalSteps() { return S.queue.length + 1; }
+
+  function renderMeasure() {
+    const m = S.queue[S.idx];
+    const pane   = $("#measure-pane");
+    const stimPane = $("#stimulus-pane");
+
+    stimPane.classList.toggle("is-veiled", !!m.hideStimulus);
+
+    const wrap = el("div", "measure");
+
+    /* progress */
+    const prog = el("div", "progress");
+    prog.innerHTML = `
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <div class="progress-count">${S.idx + 1} of ${totalSteps()}</div>`;
+    wrap.appendChild(prog);
+
+    if (m.eyebrow) wrap.appendChild(el("div", "eyebrow", m.eyebrow));
+    wrap.appendChild(el("h2", "measure-prompt", fillTokens(m.prompt)));
+    if (m.help) wrap.appendChild(el("p", "measure-help", m.help));
+
+    const body = el("div", "measure-body");
+    wrap.appendChild(body);
+
+    const btnRow = el("div", "btn-row");
+    const next   = el("button", "btn", S.idx === S.queue.length - 1 ? "Continue" : "Next");
+    next.disabled = !m.optional;
+    btnRow.appendChild(next);
+    wrap.appendChild(btnRow);
+
+    const err = el("div", "err");
+    wrap.appendChild(err);
+
+    /* ---- build the control ---- */
+    const state = { value: undefined, values: {} };
+    const ready = () => {
+      if (m.optional) return true;
+      if (m.type === "semdiff" || m.type === "likert") {
+        return m.items.every(i => state.values[i.field] !== undefined);
+      }
+      return state.value !== undefined;
+    };
+    const refresh = () => { next.disabled = !ready(); };
+
+    if (m.type === "slider100")      buildSlider100(body, m, state, refresh);
+    else if (m.type === "bipolar")   buildBipolar(body, m, state, refresh);
+    else if (m.type === "semdiff")   buildSemdiff(body, m, state, refresh);
+    else if (m.type === "likert")    buildLikert(body, m, state, refresh);
+    else if (m.type === "choice")    buildChoice(body, m, state, refresh);
+    else if (m.type === "textarea")  buildTextarea(body, m, state, refresh);
+
+    pane.innerHTML = "";
+    pane.appendChild(wrap);
+    pane.scrollTop = 0;
+    requestAnimationFrame(() => { $(".progress-fill", wrap).style.width =
+      ((S.idx + 1) / totalSteps() * 100) + "%"; });
+
+    S.screenEnteredAt = Date.now();
+
+    next.addEventListener("click", async () => {
+      if (!ready()) return;
+      S.timings["t_" + m.id] = Date.now() - S.screenEnteredAt;
+
+      if (m.type === "semdiff" || m.type === "likert") {
+        Object.assign(S.answers, state.values);
+      } else {
+        S.answers[m.field] = state.value;
+      }
+
+      /* breadcrumb so partial progress survives a drop-off */
+      rpc("log_event", {
+        p_study: CONFIG.studyId,
+        p_pid: S.pid,
+        p_kind: "page",
+        p_detail: { measure: m.id, index: S.idx, ms: S.timings["t_" + m.id] }
+      }).catch(e => console.warn("log_event", e));
+
+      S.idx += 1;
+      if (S.idx < S.queue.length) renderMeasure();
+      else { renderDemographics(); show("screen-demographics"); }
+    });
+  }
+
+  /* ---------- 0-100 slider, no default position ---------- */
+  function buildSlider100(host, m, state, refresh) {
+    const wrap = el("div", "slider-wrap");
+    wrap.innerHTML = `
+      <div class="slider-value"><span class="placeholder">Not yet answered</span></div>
+      <div class="track-outer" tabindex="0" role="slider"
+           aria-valuemin="0" aria-valuemax="100" aria-label="${m.prompt.replace(/"/g, "&quot;")}">
+        <div class="track">
+          <div class="track-fill"></div>
+          <div class="track-ticks">
+            ${[0,25,50,75,100].map(p => `<span style="left:${p}%"></span>`).join("")}
+          </div>
+          <div class="thumb"></div>
+        </div>
+      </div>
+      <div class="track-labels">
+        <span>${m.leftLabel}</span><span>${m.rightLabel}</span>
+      </div>`;
+    host.appendChild(wrap);
+
+    const outer = $(".track-outer", wrap);
+    const fill  = $(".track-fill", wrap);
+    const thumb = $(".thumb", wrap);
+    const read  = $(".slider-value", wrap);
+
+    const set = v => {
+      v = Math.round(Math.min(100, Math.max(0, v)));
+      state.value = v;
+      outer.classList.add("is-engaged");
+      fill.style.width = v + "%";
+      thumb.style.left = v + "%";
+      read.innerHTML = `<span class="num">${v}</span><span class="pct">%</span>`;
+      outer.setAttribute("aria-valuenow", v);
+      refresh();
+    };
+
+    attachTrack(outer, x => set(x * 100));
+
+    outer.addEventListener("keydown", e => {
+      const cur = state.value === undefined ? 50 : state.value;
+      const step = e.shiftKey ? 10 : 1;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp")        { set(cur + step); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown")  { set(cur - step); e.preventDefault(); }
+      else if (e.key === "Home")                                { set(0);   e.preventDefault(); }
+      else if (e.key === "End")                                 { set(100); e.preventDefault(); }
+    });
+  }
+
+  /* ---------- bipolar slider (mixed cell), -50 .. +50 ---------- */
+  function buildBipolar(host, m, state, refresh) {
+    const wrap = el("div", "slider-wrap bipolar");
+    wrap.innerHTML = `
+      <div class="bipolar-readout"><span class="placeholder">Not yet answered</span></div>
+      <div class="track-outer" tabindex="0" role="slider"
+           aria-valuemin="-50" aria-valuemax="50" aria-label="${m.prompt.replace(/<[^>]+>/g,"").replace(/"/g,"&quot;")}">
+        <div class="track">
+          <div class="track-fill"></div>
+          <div class="track-ticks">
+            <span style="left:0%"></span>
+            <span style="left:25%"></span>
+            <span class="center" style="left:50%"></span>
+            <span style="left:75%"></span>
+            <span style="left:100%"></span>
+          </div>
+          <div class="thumb"></div>
+        </div>
+      </div>
+      <div class="bipolar-labels">
+        <div class="side left">
+          <span class="who">${S.sourceFirst}</span>
+          ${S.confirmFirst ? "said the claim <em>is</em> supported" : "said the claim is <em>not</em> supported"}
+        </div>
+        <div class="mid">${m.centerLabel}</div>
+        <div class="side right">
+          <span class="who">${S.sourceSecond}</span>
+          ${S.confirmFirst ? "said the claim is <em>not</em> supported" : "said the claim <em>is</em> supported"}
+        </div>
+      </div>`;
+    host.appendChild(wrap);
+
+    const outer = $(".track-outer", wrap);
+    const fill  = $(".track-fill", wrap);
+    const thumb = $(".thumb", wrap);
+    const read  = $(".bipolar-readout", wrap);
+
+    const set = v => {
+      v = Math.round(Math.min(50, Math.max(-50, v)));
+      state.value = v;
+      outer.classList.add("is-engaged");
+      const pct = (v + 50);
+      thumb.style.left = pct + "%";
+      /* fill grows out from the centre in whichever direction was chosen */
+      if (v >= 0) { fill.style.left = "50%"; fill.style.width = (pct - 50) + "%"; }
+      else        { fill.style.left = pct + "%"; fill.style.width = (50 - pct) + "%"; }
+
+      const mag = Math.abs(v);
+      if (mag === 0) read.innerHTML = `<strong>Both equally</strong>`;
+      else {
+        const who = v > 0 ? S.sourceSecond : S.sourceFirst;
+        const how = mag < 17 ? "slightly more" : mag < 34 ? "somewhat more" : "much more";
+        read.innerHTML = `<strong>${who}</strong> &mdash; ${how}`;
+      }
+      outer.setAttribute("aria-valuenow", v);
+      refresh();
+    };
+
+    attachTrack(outer, x => set(x * 100 - 50));
+
+    outer.addEventListener("keydown", e => {
+      const cur = state.value === undefined ? 0 : state.value;
+      const step = e.shiftKey ? 10 : 1;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp")       { set(cur + step); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { set(cur - step); e.preventDefault(); }
+      else if (e.key === "Home")                               { set(-50); e.preventDefault(); }
+      else if (e.key === "End")                                { set(50);  e.preventDefault(); }
+    });
+  }
+
+  /* shared pointer handling for both slider types */
+  function attachTrack(outer, onFraction) {
+    const frac = clientX => {
+      const r = $(".track", outer).getBoundingClientRect();
+      return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    };
+    let dragging = false;
+    const down = e => {
+      dragging = true;
+      outer.setPointerCapture && e.pointerId != null && outer.setPointerCapture(e.pointerId);
+      onFraction(frac(e.clientX));
+      e.preventDefault();
+    };
+    const move = e => { if (dragging) onFraction(frac(e.clientX)); };
+    const up   = () => { dragging = false; };
+    outer.addEventListener("pointerdown", down);
+    outer.addEventListener("pointermove", move);
+    outer.addEventListener("pointerup", up);
+    outer.addEventListener("pointercancel", up);
+  }
+
+  /* ---------- semantic differential ---------- */
+  function buildSemdiff(host, m, state, refresh) {
+    const scale = el("div", "semdiff-scale");
+    scale.innerHTML = `<div></div>
+      <div class="scale-numbers">${[1,2,3,4,5,6,7].map(n => `<span>${n}</span>`).join("")}</div>
+      <div></div>`;
+    host.appendChild(scale);
+
+    m.items.forEach(item => {
+      const row = el("div", "semdiff-row");
+      const opts = [1,2,3,4,5,6,7].map(v => `
+        <label class="opt">
+          <input type="radio" name="${item.field}" value="${v}"
+                 aria-label="${item.left} to ${item.right}, ${v} of 7">
+          <span class="dot"></span>
+        </label>`).join("");
+      row.innerHTML = `
+        <div class="anchor">${item.left}</div>
+        <div class="opt-row">${opts}</div>
+        <div class="anchor right">${item.right}</div>`;
+      row.addEventListener("change", e => {
+        state.values[item.field] = parseInt(e.target.value, 10);
+        refresh();
+      });
+      host.appendChild(row);
+    });
+  }
+
+  /* ---------- likert ---------- */
+  function buildLikert(host, m, state, refresh) {
+    m.items.forEach(item => {
+      const block = el("div", "likert-item");
+      const opts = [1,2,3,4,5,6,7].map(v => `
+        <label class="likert-opt">
+          <input type="radio" name="${item.field}" value="${v}"
+                 aria-label="${m.scaleLabels[v-1] || v} (${v} of 7)">
+          <span class="dot"></span>
+          <span class="lab">${m.scaleLabels[v-1] || ""}</span>
+        </label>`).join("");
+      block.innerHTML = `
+        <div class="statement">${item.text}</div>
+        <div class="likert-scale">${opts}</div>`;
+      block.addEventListener("change", e => {
+        state.values[item.field] = parseInt(e.target.value, 10);
+        refresh();
+      });
+      host.appendChild(block);
+    });
+  }
+
+  /* ---------- single choice ---------- */
+  function buildChoice(host, m, state, refresh) {
+    const list = el("div", "choice-list");
+    m.options.forEach(o => {
+      const lab = el("label", "choice");
+      lab.innerHTML = `
+        <input type="radio" name="${m.field}" value="${o.value}">
+        <span class="radio"></span>
+        <span class="text">${o.text}</span>`;
+      list.appendChild(lab);
+    });
+    list.addEventListener("change", e => { state.value = e.target.value; refresh(); });
+    host.appendChild(list);
+  }
+
+  /* ---------- free text ---------- */
+  function buildTextarea(host, m, state, refresh) {
+    const ta = el("textarea");
+    ta.placeholder = m.placeholder || "";
+    ta.addEventListener("input", () => {
+      state.value = ta.value.trim();
+      refresh();
+    });
+    state.value = "";
+    host.appendChild(ta);
+  }
+
+  /* =====================================================================
+     4. DEMOGRAPHICS
+     ===================================================================== */
+  function renderDemographics() {
+    const host = $("#demo-body");
+    host.innerHTML = "";
+    const vals = {};
+
+    DEMOGRAPHICS.forEach(d => {
+      const item = el("div", "demo-item");
+      item.appendChild(el("div", "demo-label", d.label));
+
+      if (d.type === "number") {
+        const row = el("div", "input-row");
+        const inp = el("input");
+        inp.type = "number"; inp.min = d.min; inp.max = d.max; inp.placeholder = "—";
+        inp.addEventListener("input", () => {
+          const v = parseInt(inp.value, 10);
+          vals[d.field] = (v >= d.min && v <= d.max) ? v : undefined;
+          check();
+        });
+        row.appendChild(inp);
+        if (d.suffix) row.appendChild(el("span", "suffix", d.suffix));
+        item.appendChild(row);
+
+      } else if (d.type === "radio") {
+        const box = el("div", "demo-radios");
+        d.options.forEach(o => {
+          const lab = el("label", "choice");
+          lab.innerHTML = `<input type="radio" name="${d.field}" value="${o}">
+                           <span class="radio"></span><span class="text">${o}</span>`;
+          box.appendChild(lab);
+        });
+        let selfInput = null;
+        if (d.selfDescribe) {
+          selfInput = el("input");
+          selfInput.type = "text";
+          selfInput.placeholder = "Please describe";
+          selfInput.style.display = "none";
+          selfInput.style.marginTop = "4px";
+          selfInput.addEventListener("input", () => { vals[d.selfField] = selfInput.value.trim(); });
+          box.appendChild(selfInput);
+        }
+        box.addEventListener("change", e => {
+          vals[d.field] = e.target.value;
+          if (selfInput) {
+            const on = e.target.value === d.selfDescribe;
+            selfInput.style.display = on ? "block" : "none";
+            if (!on) { selfInput.value = ""; vals[d.selfField] = undefined; }
+          }
+          check();
+        });
+        item.appendChild(box);
+
+      } else if (d.type === "select") {
+        const sel = el("select");
+        sel.innerHTML = `<option value="">Select…</option>` +
+          d.options.map(o => `<option value="${o}">${o}</option>`).join("");
+        sel.addEventListener("change", () => {
+          vals[d.field] = sel.value || undefined;
+          check();
+        });
+        item.appendChild(sel);
+
+      } else if (d.type === "scale7") {
+        const block = el("div", "likert-item");
+        block.style.borderTop = "none";
+        block.style.paddingTop = "0";
+        const opts = [1,2,3,4,5,6,7].map(v => `
+          <label class="likert-opt">
+            <input type="radio" name="${d.field}" value="${v}" aria-label="${v} of 7">
+            <span class="dot"></span>
+            <span class="lab">${v === 1 ? d.left : v === 7 ? d.right : ""}</span>
+          </label>`).join("");
+        block.innerHTML = `<div class="likert-scale">${opts}</div>`;
+        block.addEventListener("change", e => {
+          vals[d.field] = parseInt(e.target.value, 10);
+          check();
+        });
+        item.appendChild(block);
+      }
+
+      host.appendChild(item);
+    });
+
+    const btn = $("#demo-btn");
+    const required = DEMOGRAPHICS.map(d => d.field);
+    const check = () => { btn.disabled = !required.every(f => vals[f] !== undefined); };
+    check();
+
+    $("#demo-count").textContent = `${totalSteps()} of ${totalSteps()}`;
+    requestAnimationFrame(() => { $("#demo-progress").style.width = "100%"; });
+
+    const started = Date.now();
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+      S.timings.t_demographics = Date.now() - started;
+      Object.assign(S.answers, vals);
+      try {
+        await submit();
+        show("screen-done");
+        if (CONFIG.completionUrl) setTimeout(() => { location.href = CONFIG.completionUrl; }, 1200);
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "Submit and finish";
+        const err = $("#demo-err");
+        err.textContent = "We could not save your responses. Please check your connection and try again.";
+        err.classList.add("show");
+      }
+    };
+  }
+
+  /* =====================================================================
+     5. SUBMIT — build the final payload, recoding the mixed-cell items
+        from display order into a confirming/disconfirming frame.
+     ===================================================================== */
+  function buildPayload() {
+    const a = S.answers;
+    const p = Object.assign({}, a);
+
+    if (S.condition === "mixed") {
+      /* per-source objectivity: first/second shown -> confirming/disconfirming */
+      const map = (from, to) => {
+        ["unbiased", "objective", "independent", "impartial"].forEach(k => {
+          if (a[`obj${from}_${k}`] !== undefined) p[`obj${to}_${k}`] = a[`obj${from}_${k}`];
+        });
+      };
+      map("f", S.confirmFirst ? "c" : "d");   // source shown first
+      map("s", S.confirmFirst ? "d" : "c");   // source shown second
+      ["objf_", "objs_"].forEach(pre =>
+        Object.keys(p).forEach(k => { if (k.indexOf(pre) === 0) delete p[k]; }));
+
+      /* bipolar sliders: raw is -50 (first shown) .. +50 (second shown).
+         Recode so that + always means the DISCONFIRMING source.        */
+      const sign = S.confirmFirst ? 1 : -1;
+      if (a.reliance_raw  !== undefined) p.reliance_verdict     = sign * a.reliance_raw;
+      if (a.relobj_raw    !== undefined) p.relative_objectivity = sign * a.relobj_raw;
+      if (a.relcred_raw   !== undefined) p.relative_credibility = sign * a.relcred_raw;
+      delete p.reliance_raw; delete p.relobj_raw; delete p.relcred_raw;
+    }
+
+    p.mc_correct = a.mc_verdict === MC_KEY[S.condition];
+    return p;
+  }
+
+  async function submit() {
+    const payload = buildPayload();
+
+    /* record the realised stimulus assignment alongside the answers */
+    payload.source_primary    = S.sourcePrimary;
+    payload.source_confirm    = S.condition === "mixed" ? S.sourceConfirm : null;
+    payload.source_disconfirm = S.condition === "mixed" ? S.sourceDisconfirm : null;
+    payload.confirm_first     = S.confirmFirst;
+    payload.name_swap         = S.nameSwap;
+
+    const paradata = {
+      pid_source:        S.pidSource,
+      is_test:           S.isTest,
+      prolific_study_id: new URLSearchParams(location.search).get("STUDY_ID") || null,
+      duration_ms:       Date.now() - S.startedAt,
+      read_ms:           S.timings.article_ms || null,
+      blur_count:        S.blurCount,
+      is_mobile:         window.matchMedia("(max-width: 900px)").matches,
+      user_agent:        navigator.userAgent,
+      page_ms:           S.timings
+    };
+
+    await rpc("submit", {
+      p_study: CONFIG.studyId,
+      p_pid: S.pid,
+      p_data: payload,
+      p_paradata: paradata
+    });
+  }
+
+  /* =====================================================================
+     boot
+     ===================================================================== */
+  window.addEventListener("blur", () => { S.blurCount += 1; });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    $("#done-code").textContent = CONFIG.completionCode;
+    initConsent();
+    if (PREVIEW || location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      window.__DBC = { S, buildPayload, MC_KEY };
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
