@@ -12,10 +12,16 @@ const CONFIG = {
   /* Seconds the article must be on screen before "Continue" unlocks. */
   minReadSeconds: 7,
 
-  /* Shown on the completion screen. Replace with your Prolific/CloudResearch
-     completion URL to redirect automatically; leave null to just show a code. */
-  completionUrl: null,
-  completionCode: "DBC-FR-2026"
+  /* Completion. `completionUrl` set = participants are returned automatically
+     once the debrief has had time to be read; set it to null to just show the
+     code. `completionCode` is the fallback shown on screen, so it must match
+     the code embedded in the URL. */
+  completionUrl: "https://app.prolific.com/submissions/complete?cc=CEKK0PFF",
+  completionCode: "CEKK0PFF",
+
+  /* Seconds the debrief stays on screen before the automatic return. The
+     button below it returns immediately for anyone who does not want to wait. */
+  completionDelaySeconds: 12
 };
 
 /* ---------------------------------------------------------------------

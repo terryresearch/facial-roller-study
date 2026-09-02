@@ -734,8 +734,15 @@ select{ appearance:none; background-image:
         <p class="fineprint" id="photo-credit" style="margin-top:12px"></p>
 
         <div class="code-box">
-          <div class="label">Your completion code</div>
+          <div class="label" id="code-label">Your completion code</div>
           <div class="code" id="done-code"></div>
+        </div>
+
+        <div id="return-block" hidden>
+          <div class="btn-row">
+            <button class="btn" id="return-btn">Return to Prolific now</button>
+          </div>
+          <p class="fineprint" id="return-note" style="margin-top:12px"></p>
         </div>
       </div>
     </div>
@@ -758,10 +765,16 @@ const CONFIG = {
   /* Seconds the article must be on screen before "Continue" unlocks. */
   minReadSeconds: 7,
 
-  /* Shown on the completion screen. Replace with your Prolific/CloudResearch
-     completion URL to redirect automatically; leave null to just show a code. */
-  completionUrl: null,
-  completionCode: "DBC-FR-2026"
+  /* Completion. `completionUrl` set = participants are returned automatically
+     once the debrief has had time to be read; set it to null to just show the
+     code. `completionCode` is the fallback shown on screen, so it must match
+     the code embedded in the URL. */
+  completionUrl: "https://app.prolific.com/submissions/complete?cc=CEKK0PFF",
+  completionCode: "CEKK0PFF",
+
+  /* Seconds the debrief stays on screen before the automatic return. The
+     button below it returns immediately for anyone who does not want to wait. */
+  completionDelaySeconds: 12
 };
 
 /* ---------------------------------------------------------------------
@@ -1699,7 +1712,7 @@ const DEMOGRAPHICS = [
       try {
         await submit();
         show("screen-done");
-        if (CONFIG.completionUrl) setTimeout(() => { location.href = CONFIG.completionUrl; }, 1200);
+        beginReturn();
       } catch (e) {
         console.error(e);
         btn.disabled = false;
@@ -1773,6 +1786,36 @@ const DEMOGRAPHICS = [
       p_data: payload,
       p_paradata: paradata
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Hand-off. The debrief is the last thing participants see, so it stays up
+     long enough to actually be read; the button returns immediately for
+     anyone who would rather not wait, and the code stays on screen as a
+     fallback if the redirect is blocked.
+     --------------------------------------------------------------------- */
+  function beginReturn() {
+    const url = CONFIG.completionUrl;
+    if (!url) return;
+
+    $("#code-label").textContent = "If you are not returned automatically, use this code";
+    $("#return-block").hidden = false;
+
+    let left = Math.max(0, CONFIG.completionDelaySeconds || 0);
+    const note = $("#return-note");
+    const go = () => { clearInterval(timer); location.href = url; };
+
+    const tick = () => {
+      note.textContent = left > 0
+        ? `Returning you to Prolific automatically in ${left} second${left === 1 ? "" : "s"}…`
+        : "Returning you to Prolific…";
+      if (left <= 0) go();
+      left -= 1;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
+
+    $("#return-btn").addEventListener("click", go);
   }
 
   /* =====================================================================

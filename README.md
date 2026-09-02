@@ -93,8 +93,15 @@ The credit line is shown to participants on the debrief screen.
 
     https://terryresearch.github.io/facial-roller-study/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
 
-Append `&test=1` to flag a row as a pilot. Set `completionUrl` in the config block to
-redirect on finish; otherwise participants are shown the completion code.
+Append `&test=1` to flag a row as a pilot.
+
+On finish, participants see the debrief and are returned to Prolific automatically after
+`completionDelaySeconds` (12), with a button to go back immediately and the completion code
+`CEKK0PFF` on screen as a fallback if the redirect is blocked. The return only happens
+*after* the response has been written, so a failed submission never sends anyone back with
+their data lost. Change the destination via `completionUrl` in the config block, keeping
+`completionCode` in step with the code inside the URL; set `completionUrl` to null to show
+the code only.
 
 ## Previewing conditions
 

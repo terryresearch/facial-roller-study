@@ -696,7 +696,7 @@
       try {
         await submit();
         show("screen-done");
-        if (CONFIG.completionUrl) setTimeout(() => { location.href = CONFIG.completionUrl; }, 1200);
+        beginReturn();
       } catch (e) {
         console.error(e);
         btn.disabled = false;
@@ -770,6 +770,36 @@
       p_data: payload,
       p_paradata: paradata
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Hand-off. The debrief is the last thing participants see, so it stays up
+     long enough to actually be read; the button returns immediately for
+     anyone who would rather not wait, and the code stays on screen as a
+     fallback if the redirect is blocked.
+     --------------------------------------------------------------------- */
+  function beginReturn() {
+    const url = CONFIG.completionUrl;
+    if (!url) return;
+
+    $("#code-label").textContent = "If you are not returned automatically, use this code";
+    $("#return-block").hidden = false;
+
+    let left = Math.max(0, CONFIG.completionDelaySeconds || 0);
+    const note = $("#return-note");
+    const go = () => { clearInterval(timer); location.href = url; };
+
+    const tick = () => {
+      note.textContent = left > 0
+        ? `Returning you to Prolific automatically in ${left} second${left === 1 ? "" : "s"}…`
+        : "Returning you to Prolific…";
+      if (left <= 0) go();
+      left -= 1;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
+
+    $("#return-btn").addEventListener("click", go);
   }
 
   /* =====================================================================
