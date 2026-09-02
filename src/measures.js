@@ -144,62 +144,18 @@ const MEASURES = [
     help: "Click anywhere on the line, including the middle.",
     centerLabel: "Equally<br>credible",
     field: "relcred_raw"
-  },
-
-  {
-    id: "reliance_open",
-    when: ["mixed"],
-    type: "textarea",
-    eyebrow: "Question 9",
-    prompt: "In a sentence or two, why did you weigh them that way?",
-    help: "There are no right answers — whatever went through your mind is useful.",
-    placeholder: "Type your answer here…",
-    optional: true,
-    field: "reliance_open"
-  },
-
-  /* ---------- Comprehension check ----------------------------------
-     The article is HIDDEN for this screen so the check is diagnostic
-     rather than a reading exercise. */
-  {
-    id: "mcheck",
-    when: ALL,
-    type: "choice",
-    hideStimulus: true,
-    eyebrow: "One last thing about the article",
-    prompt: "Thinking back to what you read, what conclusion — if any — was reported about the puffiness claim?",
-    help: "The article is hidden for this question. Please answer from memory.",
-    field: "mc_verdict",
-    options: [
-      { value: "confirmed",    text: "A magazine tested the claim and concluded that it <strong>is supported</strong>" },
-      { value: "disconfirmed", text: "A magazine tested the claim and concluded that it <strong>is not supported</strong>" },
-      { value: "mixed",        text: "Two magazines tested the claim and <strong>reached opposite conclusions</strong>" },
-      { value: "none",         text: "<strong>No test or conclusion</strong> was reported — only the claim itself" }
-    ]
   }
+
+
 ];
 
-/* Correct comprehension-check answer per condition. */
-const MC_KEY = {
-  control:       "none",
-  confirming:    "confirmed",
-  disconfirming: "disconfirmed",
-  mixed:         "mixed"
-};
 
 /* ---------- Demographics (shown without the stimulus) --------------- */
 const DEMOGRAPHICS = [
   { field: "age", type: "number", label: "What is your age?", min: 18, max: 110, suffix: "years" },
   {
     field: "gender", type: "radio", label: "What is your gender?",
-    options: ["Woman", "Man", "Non-binary", "Prefer to self-describe", "Prefer not to say"],
-    selfDescribe: "Prefer to self-describe", selfField: "gender_self"
-  },
-  {
-    field: "education", type: "select", label: "What is the highest level of education you have completed?",
-    options: ["Less than high school", "High school / GED", "Some college, no degree",
-              "Associate degree", "Bachelor's degree", "Master's degree",
-              "Doctoral or professional degree", "Prefer not to say"]
+    options: ["Woman", "Man", "Prefer not to say"]
   },
   {
     field: "prior_use", type: "radio", label: "Have you ever used a facial roller?",

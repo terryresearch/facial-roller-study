@@ -137,16 +137,6 @@ strong{ font-weight:650; color:var(--ink); }
 }
 .pane-measure > .measure-inner{ width:100%; max-width:520px; }
 
-/* Stimulus hidden (comprehension check) */
-.pane-stimulus.is-veiled > .article{ display:none; }
-.veil{
-  display:none; margin:auto; text-align:center; max-width:270px;
-  color:var(--ink-4); font-size:13.5px; line-height:1.6;
-}
-.pane-stimulus.is-veiled{ align-items:center; justify-content:center; }
-.pane-stimulus.is-veiled .veil{ display:block; }
-.veil svg{ display:block; margin:0 auto 14px; opacity:.5; }
-
 /* =====================  THE ARTICLE  ================================ */
 .article{ animation:rise .5s var(--ease) both; }
 
@@ -169,10 +159,16 @@ strong{ font-weight:650; color:var(--ink); }
   font-size:clamp(25px,2.7vw,31px); line-height:1.2; letter-spacing:-.015em;
   margin:0 0 14px; color:var(--ink);
 }
-.article-standfirst{
-  font-family:var(--serif); font-size:16.5px; line-height:1.55;
-  color:var(--ink-3); margin:0 0 24px; font-style:italic;
+/* Product illustration. Sits between headline and body, identical in
+   every condition. */
+.article-figure{
+  margin:4px 0 20px; padding:0;
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:12px;
+  overflow:hidden;
 }
+.article-figure svg{ display:block; width:100%; height:auto; }
 .article-body p{
   font-family:var(--serif); font-size:16px; line-height:1.72; color:var(--ink-2);
   margin:0 0 1.05em;
@@ -209,30 +205,44 @@ strong{ font-weight:650; color:var(--ink); }
   content:""; flex:1; height:1px; background:var(--rule);
 }
 
+/* Each publication carries its own accent, so the two cards in the mixed
+   condition are clearly distinct. Both hues are cool and neither is
+   valence-loaded — no green-means-good, red-means-bad. The two themes are
+   otherwise identical in weight, so colour never signals the verdict. */
 .verdict-card{
+  --card:      #33527e;
+  --card-tint: #eef1f7;
+  --card-line: #c3cfe2;
+
   position:relative;
-  background:var(--paper);
-  border:1px solid var(--accent-line);
+  background:var(--card-tint);
+  border:1px solid var(--card-line);
+  border-left:3px solid var(--card);
   border-radius:11px;
-  padding:22px 24px 24px;
+  padding:20px 24px 22px;
   margin-bottom:14px;
-  box-shadow:0 1px 2px rgba(31,61,92,.05), 0 10px 26px -20px rgba(31,61,92,.35);
+  box-shadow:0 1px 2px rgba(20,22,26,.04), 0 10px 26px -20px rgba(20,22,26,.3);
   animation:rise .55s var(--ease) both;
 }
 .verdict-card:last-child{ margin-bottom:0; }
-.verdict-card:nth-child(3){ animation-delay:.09s; }
+.verdict-card + .verdict-card{ animation-delay:.09s; }
 
-/* hairline accent along the top edge */
-.verdict-card::before{
-  content:""; position:absolute; top:-1px; left:22px; right:22px; height:2px;
-  background:var(--accent); border-radius:2px;
+.verdict-card.theme-indigo{
+  --card:      #33527e;
+  --card-tint: #eef1f7;
+  --card-line: #c3cfe2;
+}
+.verdict-card.theme-plum{
+  --card:      #6b4a86;
+  --card-tint: #f3eef7;
+  --card-line: #d5c6e2;
 }
 
 /* Source block: descriptor above, masthead below. Stacking keeps every
    card identical in height regardless of how long the title is. */
 .verdict-source{
-  padding-bottom:13px; margin-bottom:15px;
-  border-bottom:1px solid var(--rule-soft);
+  padding-bottom:12px; margin-bottom:14px;
+  border-bottom:1px solid var(--card-line);
 }
 .verdict-source .tag{
   display:block;
@@ -242,12 +252,12 @@ strong{ font-weight:650; color:var(--ink); }
 .verdict-source .name{
   display:block;
   font-family:var(--serif); font-size:17px; font-weight:600;
-  color:var(--ink); letter-spacing:.005em; line-height:1.25;
+  color:var(--card); letter-spacing:.005em; line-height:1.25;
 }
 
 .verdict-eyebrow{
   font-size:10.5px; font-weight:650; letter-spacing:.13em; text-transform:uppercase;
-  color:var(--accent); margin-bottom:7px;
+  color:var(--card); opacity:.85; margin-bottom:7px;
 }
 .verdict-headline{
   font-family:var(--serif); font-size:19.5px; line-height:1.3; font-weight:600;
@@ -620,7 +630,36 @@ select{ appearance:none; background-image:
     </div>
   </section>
 
-  <!-- ================= 2. ARTICLE ================= -->
+  <!-- ================= 2. ORIENTATION ================= -->
+  <section id="screen-intro" class="screen">
+    <div class="centered">
+      <div class="sheet">
+        <div class="eyebrow">About this study</div>
+        <h1>What you will be doing</h1>
+        <p class="lede" style="margin-top:14px">
+          In a moment you will read a short article about a beauty product, and then
+          answer some questions about it.
+        </p>
+
+        <div class="divider"></div>
+
+        <ul class="consent-list">
+          <li><strong>There are no right or wrong answers.</strong> This is not a test of
+              your knowledge, and no question here has a correct response.</li>
+          <li><strong>We are interested in your own judgment</strong> — what you personally
+              make of what you read, whatever that turns out to be.</li>
+          <li><strong>Take your time.</strong> The article stays on screen while you answer,
+              so you can look back at it whenever you like.</li>
+        </ul>
+
+        <div class="btn-row">
+          <button class="btn" id="intro-btn">Continue</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. ARTICLE ================= -->
   <section id="screen-article" class="screen">
     <div class="centered">
       <div class="sheet wide">
@@ -636,25 +675,16 @@ select{ appearance:none; background-image:
     </div>
   </section>
 
-  <!-- ================= 3. MEASURES (split view) ================= -->
+  <!-- ================= 4. MEASURES (split view) ================= -->
   <section id="screen-measures" class="screen">
     <div class="split">
-      <div class="pane-stimulus" id="stimulus-pane">
-        <div id="article-split" class="article"></div>
-        <div class="veil">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
-          The article is hidden for this question.<br>Please answer from memory.
-        </div>
-      </div>
+      <!-- the article node is moved in here from the reading screen -->
+      <div class="pane-stimulus" id="stimulus-pane"></div>
       <div class="pane-measure" id="measure-pane"></div>
     </div>
   </section>
 
-  <!-- ================= 4. DEMOGRAPHICS ================= -->
+  <!-- ================= 5. DEMOGRAPHICS ================= -->
   <section id="screen-demographics" class="screen">
     <div class="centered">
       <div class="sheet">
@@ -676,7 +706,7 @@ select{ appearance:none; background-image:
     </div>
   </section>
 
-  <!-- ================= 5. DONE ================= -->
+  <!-- ================= 6. DONE ================= -->
   <section id="screen-done" class="screen">
     <div class="centered">
       <div class="sheet">
@@ -713,7 +743,7 @@ select{ appearance:none; background-image:
 <script>
 /* =====================================================================
    Disconfirming but Convincing — Facial Roller Study (4 cells)
-   Configuration: endpoints, stimulus copy, and measures.
+   Configuration: endpoints, stimulus copy, and source branding.
    Everything a researcher would want to edit lives in this file.
    ===================================================================== */
 
@@ -733,34 +763,36 @@ const CONFIG = {
 
 /* ---------------------------------------------------------------------
    STIMULUS
-   The introduction is IDENTICAL in all four conditions. Conditions differ
-   only by which verdict card(s) appear beneath it.
-   Both verdict cards use identical visual treatment — the only difference
-   between them is the wording — so that no colour/valence cue is confounded
-   with the manipulation.
+   The article is IDENTICAL in all four conditions. Conditions differ only
+   by which verdict card(s) appear beneath it.
    --------------------------------------------------------------------- */
 const STIMULUS = {
   kicker: "Skincare",
   headline: "Do facial rollers really de-puff your face?",
-  standfirst:
-    "They are on every beauty shelf and in every morning routine. We looked at what they promise.",
 
   body: [
-    "Facial rollers — the small handheld tools with a smooth stone or metal head that you glide across your cheeks, jaw, and under your eyes — have become one of the most widely sold items in skincare. They are sold in most drugstores and beauty retailers, typically for between $15 and $60.",
-    "Manufacturers market them for a range of benefits, but the claim that appears most often on the packaging and in the advertising is this one:"
+    "Facial rollers are among the best-selling items in skincare: a smooth stone head on a handle, glided across the cheeks, jaw, and under the eyes. Most sell for $15 to $60."
   ],
 
   claim: "Reduces facial puffiness.",
 
   bodyAfterClaim: [
-    "The reasoning offered by manufacturers is that rolling the tool across the face moves excess fluid out of the tissue beneath the skin, so the face looks less swollen — particularly around the eyes and along the jawline first thing in the morning."
+    "Manufacturers say the rolling moves excess fluid out of the tissue beneath the skin, so the face looks less swollen."
   ],
 
-  /* The two magazines. Fictional, so that no real publication is depicted
-     as having reached a verdict it never reached. Both are described
-     identically, so source authority is held constant across conditions
-     and across the two sources in the mixed cell. */
-  sourceNames: ["Wellbeing Monthly", "The Health Review"],
+  /* The two magazines. Fictional, so no real publication is depicted
+     reaching a verdict it never reached. Both are described identically,
+     so source authority is held constant.
+
+     Each publication carries its own accent colour, the way a real masthead
+     would. Because which magazine delivers which verdict is already
+     counterbalanced, tying colour to the publication counterbalances
+     colour against verdict automatically — no extra random factor, and
+     neither hue is valence-loaded (no green = good, red = bad). */
+  sources: [
+    { name: "Wellbeing Monthly", theme: "indigo" },
+    { name: "The Health Review", theme: "plum"   }
+  ],
   sourceTag: "Established health &amp; lifestyle magazine",
 
   verdict: {
@@ -768,19 +800,110 @@ const STIMULUS = {
       eyebrow: "Our verdict",
       headline: "The claim holds up.",
       body:
-        "Our editorial team put facial rollers through our standard product evaluation. Based on what we measured, facial rollers <strong>did</strong> produce a meaningful reduction in facial puffiness. We conclude that the manufacturers’ claim <strong>is supported</strong>."
+        "We put facial rollers through our standard product evaluation. Based on what we measured, they <strong>did</strong> produce a meaningful reduction in facial puffiness. The manufacturers’ claim <strong>is supported</strong>."
     },
     disconfirming: {
       eyebrow: "Our verdict",
       headline: "The claim does not hold up.",
       body:
-        "Our editorial team put facial rollers through our standard product evaluation. Based on what we measured, facial rollers <strong>did not</strong> produce a meaningful reduction in facial puffiness. We conclude that the manufacturers’ claim <strong>is not supported</strong>."
+        "We put facial rollers through our standard product evaluation. Based on what we measured, they <strong>did not</strong> produce a meaningful reduction in facial puffiness. The manufacturers’ claim <strong>is not supported</strong>."
     }
   },
 
   sectionLabelSingle: "Independent product test",
   sectionLabelMixed: "Independent product tests"
 };
+
+</script>
+
+<script>
+/* =====================================================================
+   Product illustration — a jade facial roller.
+   Inline SVG so the study stays a single self-contained file: no external
+   image request, no licensing question, and it stays crisp at any size.
+   Shown identically in all four conditions.
+   ===================================================================== */
+
+const ROLLER_SVG = `
+<svg viewBox="36 44 456 168" role="img"
+     aria-label="A jade facial roller: a smooth stone barrel on a slim handle, with a smaller stone barrel at the opposite end."
+     xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fr-stone" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0"    stop-color="#e2efe7"/>
+      <stop offset="0.30" stop-color="#b3d3c1"/>
+      <stop offset="0.68" stop-color="#84b49c"/>
+      <stop offset="1"    stop-color="#639a82"/>
+    </linearGradient>
+    <linearGradient id="fr-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#f6ecd8"/>
+      <stop offset="0.30" stop-color="#ddc79d"/>
+      <stop offset="0.66" stop-color="#c0a377"/>
+      <stop offset="1"    stop-color="#9c7f57"/>
+    </linearGradient>
+    <linearGradient id="fr-cap" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0"   stop-color="#f6ecd8"/>
+      <stop offset="0.55" stop-color="#cbae82"/>
+      <stop offset="1"   stop-color="#8f764f"/>
+    </linearGradient>
+    <radialGradient id="fr-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0"    stop-color="#e9f0ea"/>
+      <stop offset="0.62" stop-color="#eef2ee" stop-opacity="0.55"/>
+      <stop offset="1"    stop-color="#eef2ee" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fr-blur" x="-40%" y="-60%" width="180%" height="220%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <!-- soft backdrop -->
+  <ellipse cx="264" cy="128" rx="214" ry="86" fill="url(#fr-glow)"/>
+
+  <g transform="rotate(-13 260 124)">
+
+    <!-- grounding shadow, following the tool -->
+    <ellipse cx="126" cy="168" rx="66" ry="9"  fill="#5c7d6c" opacity="0.18" filter="url(#fr-blur)"/>
+    <ellipse cx="300" cy="150" rx="86" ry="5"  fill="#5c7d6c" opacity="0.13" filter="url(#fr-blur)"/>
+    <ellipse cx="436" cy="152" rx="34" ry="6"  fill="#5c7d6c" opacity="0.15" filter="url(#fr-blur)"/>
+
+    <!-- ================= large head ================= -->
+    <!-- yoke arcing over the stone, drawn behind it -->
+    <path d="M196 124 C 196 97, 166 86, 126 86 C 86 86, 56 97, 56 124"
+          fill="none" stroke="url(#fr-metal)" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- handle -->
+    <path d="M196 116 L392 118.5 Q398 118.6 398 124 Q398 129.4 392 129.5 L196 132 Z"
+          fill="url(#fr-metal)"/>
+    <path d="M198 117.6 L392 120 Q395 120.1 395 121.4 L198 121 Z"
+          fill="#ffffff" opacity="0.45"/>
+
+    <!-- stone barrel -->
+    <rect x="56" y="94" width="140" height="60" rx="30" fill="url(#fr-stone)"/>
+    <rect x="56" y="94" width="140" height="60" rx="30"
+          fill="none" stroke="#4d8670" stroke-opacity="0.26"/>
+    <path d="M82 108 Q116 100 156 103" stroke="#ffffff" stroke-opacity="0.38"
+          stroke-width="6.5" stroke-linecap="round" fill="none"/>
+    <path d="M92 145 Q130 152 172 144" stroke="#3f7161" stroke-opacity="0.14"
+          stroke-width="8" stroke-linecap="round" fill="none"/>
+
+    <!-- axle caps -->
+    <ellipse cx="56"  cy="124" rx="7.5" ry="12" fill="url(#fr-cap)"/>
+    <ellipse cx="196" cy="124" rx="7.5" ry="12" fill="url(#fr-cap)"/>
+
+    <!-- ================= small head ================= -->
+    <path d="M402 124.5 C 402 110, 419 100, 439 100 C 459 100, 476 110, 476 124.5"
+          fill="none" stroke="url(#fr-metal)" stroke-width="5" stroke-linecap="round"/>
+
+    <rect x="402" y="106" width="74" height="37" rx="18.5" fill="url(#fr-stone)"/>
+    <rect x="402" y="106" width="74" height="37" rx="18.5"
+          fill="none" stroke="#4d8670" stroke-opacity="0.26"/>
+    <path d="M416 114 Q440 108 462 112" stroke="#ffffff" stroke-opacity="0.5"
+          stroke-width="6" stroke-linecap="round" fill="none"/>
+
+    <ellipse cx="402" cy="124.5" rx="5.5" ry="8.5" fill="url(#fr-cap)"/>
+    <ellipse cx="476" cy="124.5" rx="5.5" ry="8.5" fill="url(#fr-cap)"/>
+  </g>
+</svg>`;
 
 </script>
 
@@ -931,62 +1054,18 @@ const MEASURES = [
     help: "Click anywhere on the line, including the middle.",
     centerLabel: "Equally<br>credible",
     field: "relcred_raw"
-  },
-
-  {
-    id: "reliance_open",
-    when: ["mixed"],
-    type: "textarea",
-    eyebrow: "Question 9",
-    prompt: "In a sentence or two, why did you weigh them that way?",
-    help: "There are no right answers — whatever went through your mind is useful.",
-    placeholder: "Type your answer here…",
-    optional: true,
-    field: "reliance_open"
-  },
-
-  /* ---------- Comprehension check ----------------------------------
-     The article is HIDDEN for this screen so the check is diagnostic
-     rather than a reading exercise. */
-  {
-    id: "mcheck",
-    when: ALL,
-    type: "choice",
-    hideStimulus: true,
-    eyebrow: "One last thing about the article",
-    prompt: "Thinking back to what you read, what conclusion — if any — was reported about the puffiness claim?",
-    help: "The article is hidden for this question. Please answer from memory.",
-    field: "mc_verdict",
-    options: [
-      { value: "confirmed",    text: "A magazine tested the claim and concluded that it <strong>is supported</strong>" },
-      { value: "disconfirmed", text: "A magazine tested the claim and concluded that it <strong>is not supported</strong>" },
-      { value: "mixed",        text: "Two magazines tested the claim and <strong>reached opposite conclusions</strong>" },
-      { value: "none",         text: "<strong>No test or conclusion</strong> was reported — only the claim itself" }
-    ]
   }
+
+
 ];
 
-/* Correct comprehension-check answer per condition. */
-const MC_KEY = {
-  control:       "none",
-  confirming:    "confirmed",
-  disconfirming: "disconfirmed",
-  mixed:         "mixed"
-};
 
 /* ---------- Demographics (shown without the stimulus) --------------- */
 const DEMOGRAPHICS = [
   { field: "age", type: "number", label: "What is your age?", min: 18, max: 110, suffix: "years" },
   {
     field: "gender", type: "radio", label: "What is your gender?",
-    options: ["Woman", "Man", "Non-binary", "Prefer to self-describe", "Prefer not to say"],
-    selfDescribe: "Prefer to self-describe", selfField: "gender_self"
-  },
-  {
-    field: "education", type: "select", label: "What is the highest level of education you have completed?",
-    options: ["Less than high school", "High school / GED", "Some college, no degree",
-              "Associate degree", "Bachelor's degree", "Master's degree",
-              "Doctoral or professional degree", "Prefer not to say"]
+    options: ["Woman", "Man", "Prefer not to say"]
   },
   {
     field: "prior_use", type: "radio", label: "Have you ever used a facial roller?",
@@ -1085,8 +1164,7 @@ const DEMOGRAPHICS = [
       try {
         await startSession();
         renderArticle();
-        show("screen-article");
-        beginReadTimer();
+        show("screen-intro");
       } catch (e) {
         console.error(e);
         btn.disabled = false;
@@ -1106,6 +1184,13 @@ const DEMOGRAPHICS = [
     const c = new URLSearchParams(location.search).get("preview");
     return ["control", "confirming", "disconfirming", "mixed"].indexOf(c) !== -1 ? c : null;
   })();
+
+  function initIntro() {
+    $("#intro-btn").addEventListener("click", () => {
+      show("screen-article");
+      beginReadTimer();
+    });
+  }
 
   async function startSession() {
     const q = new URLSearchParams(location.search);
@@ -1167,28 +1252,39 @@ const DEMOGRAPHICS = [
     S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
   }
 
-  /* Resolve the two magazine names onto their roles. */
+  /* Resolve the two publications onto their roles. Each carries its own
+     accent colour, so tying colour to the publication counterbalances
+     colour against verdict for free — nameSwap already alternates which
+     publication delivers which verdict. */
   function applySources() {
-    const names = STIMULUS.sourceNames;
-    const n1 = S.nameSwap ? names[1] : names[0];
-    const n2 = S.nameSwap ? names[0] : names[1];
-    S.sourcePrimary    = n1;
-    S.sourceConfirm    = S.confirmFirst ? n1 : n2;
-    S.sourceDisconfirm = S.confirmFirst ? n2 : n1;
-    S.sourceFirst      = S.confirmFirst ? S.sourceConfirm : S.sourceDisconfirm;
-    S.sourceSecond     = S.confirmFirst ? S.sourceDisconfirm : S.sourceConfirm;
+    const src = STIMULUS.sources;
+    const a = S.nameSwap ? src[1] : src[0];
+    const b = S.nameSwap ? src[0] : src[1];
+
+    S.primary    = a;
+    S.confirmSrc = S.confirmFirst ? a : b;
+    S.disconfSrc = S.confirmFirst ? b : a;
+    S.firstSrc   = S.confirmFirst ? S.confirmSrc : S.disconfSrc;
+    S.secondSrc  = S.confirmFirst ? S.disconfSrc : S.confirmSrc;
+
+    /* plain-name aliases used throughout the copy */
+    S.sourcePrimary    = a.name;
+    S.sourceConfirm    = S.confirmSrc.name;
+    S.sourceDisconfirm = S.disconfSrc.name;
+    S.sourceFirst      = S.firstSrc.name;
+    S.sourceSecond     = S.secondSrc.name;
   }
 
   /* =====================================================================
      2. ARTICLE
      ===================================================================== */
-  function verdictCardHTML(sourceName, kind) {
+  function verdictCardHTML(source, kind) {
     const v = STIMULUS.verdict[kind];
     return `
-      <article class="verdict-card">
+      <article class="verdict-card theme-${source.theme}">
         <div class="verdict-source">
           <span class="tag">${STIMULUS.sourceTag}</span>
-          <span class="name">${sourceName}</span>
+          <span class="name">${source.name}</span>
         </div>
         <div class="verdict-eyebrow">${v.eyebrow}</div>
         <h3 class="verdict-headline">${v.headline}</h3>
@@ -1203,15 +1299,15 @@ const DEMOGRAPHICS = [
       verdicts = `
         <section class="verdicts">
           <div class="verdicts-label">${STIMULUS.sectionLabelSingle}</div>
-          ${verdictCardHTML(S.sourcePrimary, S.condition)}
+          ${verdictCardHTML(S.primary, S.condition)}
         </section>`;
     } else if (S.condition === "mixed") {
       const first  = S.confirmFirst
-        ? verdictCardHTML(S.sourceConfirm, "confirming")
-        : verdictCardHTML(S.sourceDisconfirm, "disconfirming");
+        ? verdictCardHTML(S.confirmSrc, "confirming")
+        : verdictCardHTML(S.disconfSrc, "disconfirming");
       const second = S.confirmFirst
-        ? verdictCardHTML(S.sourceDisconfirm, "disconfirming")
-        : verdictCardHTML(S.sourceConfirm, "confirming");
+        ? verdictCardHTML(S.disconfSrc, "disconfirming")
+        : verdictCardHTML(S.confirmSrc, "confirming");
       verdicts = `
         <section class="verdicts">
           <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
@@ -1225,7 +1321,7 @@ const DEMOGRAPHICS = [
         <span class="section">${STIMULUS.kicker}</span>
       </div>
       <h1 class="article-headline">${STIMULUS.headline}</h1>
-      <p class="article-standfirst">${STIMULUS.standfirst}</p>
+      <figure class="article-figure">${ROLLER_SVG}</figure>
       <div class="article-body">
         ${STIMULUS.body.map(p => `<p>${p}</p>`).join("")}
         <div class="claim-block">
@@ -1237,10 +1333,12 @@ const DEMOGRAPHICS = [
       ${verdicts}`;
   }
 
+  /* Rendered ONCE. The same node is later moved into the left-hand pane
+     rather than duplicated, so the illustration's gradient ids stay unique
+     in the document — two copies would collide and the SVG would lose its
+     fills. */
   function renderArticle() {
-    const html = articleHTML();
-    $("#article-full").innerHTML  = html;
-    $("#article-split").innerHTML = html;
+    $("#article-full").innerHTML = articleHTML();
   }
 
   function beginReadTimer() {
@@ -1262,6 +1360,8 @@ const DEMOGRAPHICS = [
 
     btn.onclick = () => {
       S.timings.article_ms = Date.now() - S.articleStart;
+      const pane = $("#stimulus-pane");
+      pane.insertBefore($("#article-full"), pane.firstChild);
       S.idx = 0;
       show("screen-measures");
       renderMeasure();
@@ -1284,10 +1384,8 @@ const DEMOGRAPHICS = [
 
   function renderMeasure() {
     const m = S.queue[S.idx];
-    const pane   = $("#measure-pane");
-    const stimPane = $("#stimulus-pane");
+    const pane = $("#measure-pane");
 
-    stimPane.classList.toggle("is-veiled", !!m.hideStimulus);
 
     const wrap = el("div", "measure");
 
@@ -1723,7 +1821,6 @@ const DEMOGRAPHICS = [
       delete p.reliance_raw; delete p.relobj_raw; delete p.relcred_raw;
     }
 
-    p.mc_correct = a.mc_verdict === MC_KEY[S.condition];
     return p;
   }
 
@@ -1736,6 +1833,8 @@ const DEMOGRAPHICS = [
     payload.source_disconfirm = S.condition === "mixed" ? S.sourceDisconfirm : null;
     payload.confirm_first     = S.confirmFirst;
     payload.name_swap         = S.nameSwap;
+    payload.theme_confirm     = S.condition === "control" ? null : S.confirmSrc.theme;
+    payload.theme_disconfirm  = S.condition === "control" ? null : S.disconfSrc.theme;
 
     const paradata = {
       pid_source:        S.pidSource,
@@ -1765,8 +1864,9 @@ const DEMOGRAPHICS = [
   document.addEventListener("DOMContentLoaded", () => {
     $("#done-code").textContent = CONFIG.completionCode;
     initConsent();
+    initIntro();
     if (PREVIEW || location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-      window.__DBC = { S, buildPayload, MC_KEY };
+      window.__DBC = { S, buildPayload };
     }
   });
 })();

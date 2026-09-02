@@ -7,9 +7,12 @@ Norm Signal Objectivity*, with a fourth cell that the manuscript does not contai
 
 ## Design
 
+Consent, then a short orientation page, then the article, the measures, and a brief
+demographics block.
+
 Four cells, between subjects. Every participant reads the same article about facial
-rollers and the manufacturers' claim that they reduce facial puffiness. The cells differ
-only in what appears beneath that claim.
+rollers — including the same product illustration — and the manufacturers' claim that
+they reduce facial puffiness. The cells differ only in what appears beneath that claim.
 
 | cell | what is shown under the claim |
 |---|---|
@@ -18,9 +21,15 @@ only in what appears beneath that claim.
 | `disconfirming` | one magazine's verdict: the claim is **not** supported |
 | `mixed` | two magazines, one confirming and one disconfirming |
 
-Both verdict cards use an identical visual treatment — same border, accent, and
-typography — so no colour or valence cue is confounded with the manipulation. The
-magazines are fictional, described identically, so source authority is held constant.
+Each publication carries its own accent colour, so the two cards in the mixed condition
+are plainly distinct and both stand apart from the body text. The colours are cool and
+neither is valence-loaded — no green-means-good, red-means-bad — and the two card styles
+are identical in weight. Because which publication delivers which verdict is already
+counterbalanced, tying colour to the publication counterbalances colour against verdict
+for free; `theme_confirm` and `theme_disconfirm` record what each participant saw.
+
+The magazines are fictional and described identically, so source authority is held
+constant. The product illustration is inline SVG, shown identically in all four cells.
 
 ## Measures
 
@@ -36,8 +45,6 @@ Presented one at a time in the right-hand panel while the article stays on the l
 - `certainty_index` — 2 items (Tormala & Rucker 2018). Belief *strength*, independent of
   direction: the mixed cell is expected to lower certainty even where it leaves the mean
   belief unmoved.
-- `mc_verdict` — comprehension check with the article **hidden**, so it is diagnostic
-  rather than a reading exercise.
 
 **Confirming / disconfirming cells**
 - `obj_index` — the manuscript's 4-item objectivity index (biased/unbiased,
@@ -50,13 +57,12 @@ Presented one at a time in the right-hand panel while the article stays on the l
   midpoint.
 - `relative_objectivity`, `relative_credibility` — which evaluation seemed more objective,
   and more credible.
-- `reliance_open` — one sentence on why (optional).
 
 All three bipolar measures are coded **-50 = entirely the confirming source, 0 = both
 equally, +50 = entirely the disconfirming source**, regardless of which was shown first.
 
-Demographics (age, gender, education, prior facial-roller use, familiarity) come last, so
-they cannot contaminate the DVs.
+Demographics (age, gender, prior facial-roller use, familiarity) come last, so they cannot
+contaminate the DVs.
 
 ## Randomisation
 

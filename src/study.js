@@ -82,8 +82,7 @@
       try {
         await startSession();
         renderArticle();
-        show("screen-article");
-        beginReadTimer();
+        show("screen-intro");
       } catch (e) {
         console.error(e);
         btn.disabled = false;
@@ -103,6 +102,13 @@
     const c = new URLSearchParams(location.search).get("preview");
     return ["control", "confirming", "disconfirming", "mixed"].indexOf(c) !== -1 ? c : null;
   })();
+
+  function initIntro() {
+    $("#intro-btn").addEventListener("click", () => {
+      show("screen-article");
+      beginReadTimer();
+    });
+  }
 
   async function startSession() {
     const q = new URLSearchParams(location.search);
@@ -164,28 +170,39 @@
     S.queue = MEASURES.filter(m => m.when.indexOf(S.condition) !== -1);
   }
 
-  /* Resolve the two magazine names onto their roles. */
+  /* Resolve the two publications onto their roles. Each carries its own
+     accent colour, so tying colour to the publication counterbalances
+     colour against verdict for free — nameSwap already alternates which
+     publication delivers which verdict. */
   function applySources() {
-    const names = STIMULUS.sourceNames;
-    const n1 = S.nameSwap ? names[1] : names[0];
-    const n2 = S.nameSwap ? names[0] : names[1];
-    S.sourcePrimary    = n1;
-    S.sourceConfirm    = S.confirmFirst ? n1 : n2;
-    S.sourceDisconfirm = S.confirmFirst ? n2 : n1;
-    S.sourceFirst      = S.confirmFirst ? S.sourceConfirm : S.sourceDisconfirm;
-    S.sourceSecond     = S.confirmFirst ? S.sourceDisconfirm : S.sourceConfirm;
+    const src = STIMULUS.sources;
+    const a = S.nameSwap ? src[1] : src[0];
+    const b = S.nameSwap ? src[0] : src[1];
+
+    S.primary    = a;
+    S.confirmSrc = S.confirmFirst ? a : b;
+    S.disconfSrc = S.confirmFirst ? b : a;
+    S.firstSrc   = S.confirmFirst ? S.confirmSrc : S.disconfSrc;
+    S.secondSrc  = S.confirmFirst ? S.disconfSrc : S.confirmSrc;
+
+    /* plain-name aliases used throughout the copy */
+    S.sourcePrimary    = a.name;
+    S.sourceConfirm    = S.confirmSrc.name;
+    S.sourceDisconfirm = S.disconfSrc.name;
+    S.sourceFirst      = S.firstSrc.name;
+    S.sourceSecond     = S.secondSrc.name;
   }
 
   /* =====================================================================
      2. ARTICLE
      ===================================================================== */
-  function verdictCardHTML(sourceName, kind) {
+  function verdictCardHTML(source, kind) {
     const v = STIMULUS.verdict[kind];
     return `
-      <article class="verdict-card">
+      <article class="verdict-card theme-${source.theme}">
         <div class="verdict-source">
           <span class="tag">${STIMULUS.sourceTag}</span>
-          <span class="name">${sourceName}</span>
+          <span class="name">${source.name}</span>
         </div>
         <div class="verdict-eyebrow">${v.eyebrow}</div>
         <h3 class="verdict-headline">${v.headline}</h3>
@@ -200,15 +217,15 @@
       verdicts = `
         <section class="verdicts">
           <div class="verdicts-label">${STIMULUS.sectionLabelSingle}</div>
-          ${verdictCardHTML(S.sourcePrimary, S.condition)}
+          ${verdictCardHTML(S.primary, S.condition)}
         </section>`;
     } else if (S.condition === "mixed") {
       const first  = S.confirmFirst
-        ? verdictCardHTML(S.sourceConfirm, "confirming")
-        : verdictCardHTML(S.sourceDisconfirm, "disconfirming");
+        ? verdictCardHTML(S.confirmSrc, "confirming")
+        : verdictCardHTML(S.disconfSrc, "disconfirming");
       const second = S.confirmFirst
-        ? verdictCardHTML(S.sourceDisconfirm, "disconfirming")
-        : verdictCardHTML(S.sourceConfirm, "confirming");
+        ? verdictCardHTML(S.disconfSrc, "disconfirming")
+        : verdictCardHTML(S.confirmSrc, "confirming");
       verdicts = `
         <section class="verdicts">
           <div class="verdicts-label">${STIMULUS.sectionLabelMixed}</div>
@@ -222,7 +239,7 @@
         <span class="section">${STIMULUS.kicker}</span>
       </div>
       <h1 class="article-headline">${STIMULUS.headline}</h1>
-      <p class="article-standfirst">${STIMULUS.standfirst}</p>
+      <figure class="article-figure">${ROLLER_SVG}</figure>
       <div class="article-body">
         ${STIMULUS.body.map(p => `<p>${p}</p>`).join("")}
         <div class="claim-block">
@@ -234,10 +251,12 @@
       ${verdicts}`;
   }
 
+  /* Rendered ONCE. The same node is later moved into the left-hand pane
+     rather than duplicated, so the illustration's gradient ids stay unique
+     in the document — two copies would collide and the SVG would lose its
+     fills. */
   function renderArticle() {
-    const html = articleHTML();
-    $("#article-full").innerHTML  = html;
-    $("#article-split").innerHTML = html;
+    $("#article-full").innerHTML = articleHTML();
   }
 
   function beginReadTimer() {
@@ -259,6 +278,8 @@
 
     btn.onclick = () => {
       S.timings.article_ms = Date.now() - S.articleStart;
+      const pane = $("#stimulus-pane");
+      pane.insertBefore($("#article-full"), pane.firstChild);
       S.idx = 0;
       show("screen-measures");
       renderMeasure();
@@ -281,10 +302,8 @@
 
   function renderMeasure() {
     const m = S.queue[S.idx];
-    const pane   = $("#measure-pane");
-    const stimPane = $("#stimulus-pane");
+    const pane = $("#measure-pane");
 
-    stimPane.classList.toggle("is-veiled", !!m.hideStimulus);
 
     const wrap = el("div", "measure");
 
@@ -720,7 +739,6 @@
       delete p.reliance_raw; delete p.relobj_raw; delete p.relcred_raw;
     }
 
-    p.mc_correct = a.mc_verdict === MC_KEY[S.condition];
     return p;
   }
 
@@ -733,6 +751,8 @@
     payload.source_disconfirm = S.condition === "mixed" ? S.sourceDisconfirm : null;
     payload.confirm_first     = S.confirmFirst;
     payload.name_swap         = S.nameSwap;
+    payload.theme_confirm     = S.condition === "control" ? null : S.confirmSrc.theme;
+    payload.theme_disconfirm  = S.condition === "control" ? null : S.disconfSrc.theme;
 
     const paradata = {
       pid_source:        S.pidSource,
@@ -762,8 +782,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     $("#done-code").textContent = CONFIG.completionCode;
     initConsent();
+    initIntro();
     if (PREVIEW || location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-      window.__DBC = { S, buildPayload, MC_KEY };
+      window.__DBC = { S, buildPayload };
     }
   });
 })();
